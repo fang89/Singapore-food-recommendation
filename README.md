@@ -1,34 +1,77 @@
-# Food recommendation
+<div align="center">
 
-Places worth going back to, most of them around Boon Keng, Bendemeer and Geylang
-Bahru — with what was ordered, what it cost, how it scored, how far it is, and which
-MRT station actually serves it.
+# 🍜 Food recommendation
 
-**Live:** https://fang89.github.io/food-recommendation/
+### Places worth going back to.
 
-## What it does
+Around Boon Keng, Bendemeer and Geylang Bahru, mostly: what to order, what it cost,<br>
+how it scored, how long it takes to get there, and which MRT station actually serves it.
 
-- **A real street map** with every place pinned, plus the five MRT stations that come
-  out nearest to something on the list — drawn in their real line colours (NE purple,
-  DT blue, EW green).
-- **Three datums.** Click any home triangle, or the switch above the map, and the
-  distance rings, distances, bearings and walking times all recompute from that door
-  — and the map recentres on it, since that is what you are now measuring from.
-- **One run at a time.** The line from the door to a place is drawn only for the
-  place you have selected. Drawing all of them turned the neighbourhood into a fan
-  of dashes with the streets underneath unreadable.
-- **A sortable list.** Sort by proximity rank, place, rating, price, distance from the
-  active door, or walk to the nearest MRT. Clicking a row finds that place on the map.
-- **A card per place** on click — rating, price band, distance, station, the plus and
-  the minus, and a Google Maps walking-directions link that routes from wherever the
-  viewer happens to be.
+<br>
 
-## Updating the list
+[![Open the live map](https://img.shields.io/badge/▶_Open_the_live_map-fang89.github.io%2Ffood--recommendation-b91c1c?style=for-the-badge)](https://fang89.github.io/food-recommendation/)
+
+**👉 [fang89.github.io/food-recommendation/](https://fang89.github.io/food-recommendation/)**
+
+<br>
+
+![Places](https://img.shields.io/badge/places-28-b91c1c)
+![Source](https://img.shields.io/badge/source-a_shared_Google_Sheet-0f766e)
+![Refresh](https://img.shields.io/badge/refresh-weekly_action-0f766e)
+![Maps](https://img.shields.io/badge/maps_%26_routing-OneMap-475569)
+![Build](https://img.shields.io/badge/ships_as-one_HTML_file-475569)
+
+<br>
+
+<a href="https://fang89.github.io/food-recommendation/"><picture><source media="(prefers-color-scheme: dark)" srcset="docs/screenshots/hero-dark.png"><img src="docs/screenshots/hero-light.png" alt="The food map: three homes, rings, and every place pinned around Boon Keng" width="860"></picture></a>
+
+</div>
+
+---
+
+## The idea
+
+A friend asks where to eat near home. The answer lives in a group Google Sheet that
+anyone can add to. This page turns that sheet into something you can actually use on
+the way out the door:
+
+| | | |
+|:-:|---|---|
+| 🏠 | **Three front doors** | Pick whose home you are leaving from. Rings, times and bearings all recompute from that door. |
+| ⏱️ | **Minutes, not metres** | OneMap routes every home-to-place trip on foot *and* by public transport, and shows the quicker one. |
+| 🚇 | **The station that really serves it** | Nearest MRT from the whole network, in its real line colour, with the walk from the exit. |
+| ⭐ | **Rated and priced** | Rating, price band, the plus and the minus, and who recommended it. |
+| 🏷️ | **Filter by craving** | Category chips come straight from the sheet. Add a new category there and a chip appears here. |
+| 🔄 | **Pull from sheet** | Added a row a minute ago? Press the button and it is geocoded and pinned in your browser on the spot. |
+
+## 🗺️ Click a pin, get the card
+
+Rating, price, travel time from the active door, nearest MRT, the good and the bad,
+and a Google Maps walking-directions link that routes from wherever you are standing.
+
+<p align="center"><a href="https://fang89.github.io/food-recommendation/"><picture><source media="(prefers-color-scheme: dark)" srcset="docs/screenshots/card-dark.png"><img src="docs/screenshots/card-light.png" alt="A place card over the dark map: Generation Coffee Roasters, 4.0, 5 min walk, NE9 Boon Keng" width="760"></picture></a></p>
+
+## 📋 The list
+
+Sort by travel time, rating, price or walk to the MRT. Click a row and the map flies there.
+
+<p align="center"><a href="https://fang89.github.io/food-recommendation/"><picture><source media="(prefers-color-scheme: dark)" srcset="docs/screenshots/list-dark.png"><img src="docs/screenshots/list-light.png" alt="The sortable list with category chips, ratings, price bands and MRT pills" width="760"></picture></a></p>
+
+> [!NOTE]
+> **Privacy by design.** The homes are geocoded from postal codes at build time, but only
+> their coordinates ship, under neutral labels (`A's Hse`, `B's Hse`, `C's Hse`). No postal
+> code or real name reaches this repo, the page, or a public Actions log.
+
+---
+
+## 🛠️ For contributors
+
+### Updating the list
 
 Anyone can add a row to the sheet. There are three ways to get those edits onto
 the page, in increasing order of permanence.
 
-### 1. From the page itself — **Pull from sheet**
+#### 1. From the page itself — **Pull from sheet**
 
 The published page has a **Pull from sheet** button next to the sheet link. It
 re-reads the sheet in the browser and redraws the list and the map on the spot:
@@ -50,14 +93,14 @@ Two things it deliberately cannot do:
   nothing else. Reload and you are on the last published build again; only the
   action below or `./update.sh` makes a change stick.
 
-### 2. From GitHub — the **Refresh from sheet** action
+#### 2. From GitHub — the **Refresh from sheet** action
 
 Actions → *Refresh from sheet* → **Run workflow**. That does the full job on a
 runner — re-geocode, recompute the bounding box, smoke test, commit — and Pages
 redeploys. Still no terminal. It also runs itself
 weekly, so the page does not silently rot if nobody presses anything.
 
-### 3. From a terminal
+#### 3. From a terminal
 
 ```
 ./update.sh
@@ -100,7 +143,7 @@ skips the cache for those, and every write strips any bare postal-code key an
 older build may have left behind.
 
 **`build/build.py`** inlines Leaflet and `data/*.json` into a single `index.html`.
-The basemap is not inlined — it comes live from CARTO at view time.
+The basemap is not inlined — it comes live from OneMap at view time.
 
 **`build/test_refresh.py`** covers the sheet reader itself — header drift,
 reordered columns, the self-closing cell that once made a blank Minus swallow the
@@ -119,7 +162,7 @@ page looks, so still open it.
 Read the warnings `refresh.py` prints. They are how the sheet tells you it has
 drifted.
 
-### When a home will not geocode
+#### When a home will not geocode
 
 A home is located from the postal code on the sheet's other tab, and only its
 coordinates are written into `data/homes.json` — the postal code itself never
@@ -145,7 +188,7 @@ file is public, so an override holds coordinates, not a postal code or a block
 number — nothing more identifying than the page already ships. Delete the entry
 once the sheet's own code resolves.
 
-## Configuration
+### Configuration
 
 `data/config.json` holds everything you would otherwise have to edit code for:
 the sheet id and URL, walking speed, the names the homes are shown under
@@ -157,13 +200,15 @@ and any home whose postal code the sheet has wrong (`home_overrides`).
 `data/stations.json` is fetched from OneMap on the first build and cached.
 Delete it to refetch — after a new line opens, say.
 
-## How it's built
+### How it's built
 
 One `index.html` with Leaflet and the data inlined. The basemap and the fonts
 are the only things fetched at runtime.
 
 - **Leaflet** is vendored into `vendor/`.
-- **The basemap is live**, from CARTO's CDN, light and dark. It used to be baked
+- **The basemap is live**, from OneMap (Grey by day, Night in dark mode), which
+  needs no key. CARTO served it until October 2026, when it began stamping
+  "API key required" across every tile. Before that it was baked
   into the page as ~200 WebP data URIs, because the first home for this page was
   a Claude Artifact, where a strict CSP blocks any request to another host. That
   cost 2.8 MB and, worse, fenced the map into the one box those tiles covered:
@@ -198,7 +243,7 @@ are the only things fetched at runtime.
 - **Place data is never hand-edited.** It comes from `data/*.json`, which comes from
   the sheet.
 
-## Travel times
+### Travel times
 
 The lead column, **From <home>**, is how long it takes, not how far it is. OneMap costs
 every home-to-place pair two ways at build time — on foot, and by public
@@ -237,7 +282,7 @@ weekday midday (`route_when` in `config.json`) rather than for the moment of
 the build, so the same page does not report different numbers each time it is
 rebuilt.
 
-## Moving around the map
+### Moving around the map
 
 The map is a tall panel in the middle of a page that scrolls, so it must not
 swallow a scroll meant for the page. It takes the two gestures that say
@@ -258,7 +303,7 @@ what leaves `touch-action` at `pan-x pan-y`, which is what lets the browser keep
 the one-finger scroll for itself. It has to be decided before the first gesture,
 because `touch-action` is read when a gesture begins.
 
-## Caveats
+### Caveats
 
 - **Distances are geodesic** — straight lines from the datum, not walking routes.
   Allow roughly 15–30% more on foot once crossings and the canal are counted.
@@ -271,7 +316,7 @@ because `touch-action` is read when a gesture begins.
 - **A browser pull is not a build.** It changes what you are looking at, not what
   is published. Use the GitHub action or `./update.sh` to make it stick.
 
-## Attribution
+### Attribution
 
-Basemap © [OpenStreetMap](https://www.openstreetmap.org/copyright) contributors,
-© [CARTO](https://carto.com/attributions). Geocoding © OneMap, Singapore Land Authority.
+Basemap, geocoding and routing © [OneMap](https://www.onemap.gov.sg/),
+Singapore Land Authority.
