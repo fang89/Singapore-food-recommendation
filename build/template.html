@@ -391,7 +391,7 @@ html{-webkit-text-size-adjust:100%}
   </section>
 
   <footer class="colophon">
-    <span id="colo">10 places</span> · source: Google Sheet, refreshed 23 Aug 2026 · geocoded with <b>OneMap SG</b> · straight-line distances, allow 15–30% more on foot · basemap <b>CARTO</b> on <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>
+    <span id="colo">10 places</span> · source: Google Sheet, refreshed 23 Aug 2026 · geocoded with <b>OneMap SG</b> · straight-line distances, allow 15–30% more on foot · basemap <b>OneMap</b> &copy; <a href="https://www.sla.gov.sg/">SLA</a>
   </footer>
 
 </div>
@@ -481,18 +481,18 @@ html{-webkit-text-size-adjust:100%}
            p.lat.toFixed(6)+","+p.lng.toFixed(6)+"&travelmode=walking";
   }
 
-  // Tiles come from CARTO's CDN. This page is served from GitHub Pages, where
-  // nothing stops it reaching a tile server, so the map pans and zooms as far
-  // as the viewer wants instead of being fenced into a box of baked-in tiles.
-  var map=L.map("map",{scrollWheelZoom:false, zoomSnap:.25, minZoom:3, maxZoom:19});
-  var ATTR='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>';
+  // Tiles come live from OneMap, which needs no key (CARTO, the previous source,
+  // began stamping "API key required" over every tile in Oct 2026). OneMap only
+  // draws Singapore and its zoom-11 tiles are a print-style sheet with an inset box, so the map stops at 12.
+  var map=L.map("map",{scrollWheelZoom:false, zoomSnap:.25, minZoom:12, maxZoom:19});
+  var ATTR='<a href="https://www.onemap.gov.sg/">OneMap</a> &copy; contributors | <a href="https://www.sla.gov.sg/">Singapore Land Authority</a>';
   var layer=null;
   function setTiles(){
-    var want=isDark()?"dark_all":"light_all";
+    var want=isDark()?"Night":"Grey";
     if(layer && layer._slug===want) return;
     if(layer) map.removeLayer(layer);
-    layer=L.tileLayer("https://{s}.basemaps.cartocdn.com/"+want+"/{z}/{x}/{y}{r}.png",
-      {subdomains:"abcd", maxZoom:19, detectRetina:true, attribution:ATTR});
+    layer=L.tileLayer("https://www.onemap.gov.sg/maps/tiles/"+want+"/{z}/{x}/{y}.png",
+      {minZoom:12, maxZoom:19, attribution:ATTR});
     layer._slug=want;
     layer.addTo(map); layer.bringToBack();
   }

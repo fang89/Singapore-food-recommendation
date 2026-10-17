@@ -2,7 +2,7 @@
 """Build index.html: inline Leaflet and the data into one file.
 
 Leaflet's CSS and JS are vendored and inlined, and data/*.json is compiled in,
-so the page is one file. The basemap is not: tiles come live from CARTO, which
+so the page is one file. The basemap is not: tiles come live from OneMap, which
 GitHub Pages is perfectly able to reach.
 
     python3 build/refresh.py    # pull the sheet, geocode, write data/*.json
