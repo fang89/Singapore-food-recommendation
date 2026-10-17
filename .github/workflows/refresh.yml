@@ -3,7 +3,7 @@ name: Refresh from sheet
 # Rebuilds the page from the Google Sheet and commits the result, so the live
 # site can be updated without a terminal:
 #
-#   github.com/fang89/food-recommendation -> Actions -> Refresh from sheet
+#   github.com/fang89/Singapore-food-recommendation -> Actions -> Refresh from sheet
 #   -> Run workflow
 #
 # It does the full job the browser's "Pull from sheet" button cannot: it

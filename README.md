@@ -9,9 +9,9 @@ how it scored, how long it takes to get there, and which MRT station actually se
 
 <br>
 
-[![Open the live map](https://img.shields.io/badge/▶_Open_the_live_map-fang89.github.io%2Ffood--recommendation-b91c1c?style=for-the-badge)](https://fang89.github.io/food-recommendation/)
+[![Open the live map](https://img.shields.io/badge/▶_Open_the_live_map-fang89.github.io%2FSingapore--food--recommendation-b91c1c?style=for-the-badge)](https://fang89.github.io/Singapore-food-recommendation/)
 
-**👉 [fang89.github.io/food-recommendation/](https://fang89.github.io/food-recommendation/)**
+**👉 [fang89.github.io/Singapore-food-recommendation/](https://fang89.github.io/Singapore-food-recommendation/)**
 
 <br>
 
@@ -23,7 +23,7 @@ how it scored, how long it takes to get there, and which MRT station actually se
 
 <br>
 
-<a href="https://fang89.github.io/food-recommendation/"><picture><source media="(prefers-color-scheme: dark)" srcset="docs/screenshots/hero-dark.png"><img src="docs/screenshots/hero-light.png" alt="The food map: three homes, rings, and every place pinned around Boon Keng" width="860"></picture></a>
+<a href="https://fang89.github.io/Singapore-food-recommendation/"><picture><source media="(prefers-color-scheme: dark)" srcset="docs/screenshots/hero-dark.png"><img src="docs/screenshots/hero-light.png" alt="The food map: three homes, rings, and every place pinned around Boon Keng" width="860"></picture></a>
 
 </div>
 
@@ -49,13 +49,13 @@ the way out the door:
 Rating, price, travel time from the active door, nearest MRT, the good and the bad,
 and a Google Maps walking-directions link that routes from wherever you are standing.
 
-<p align="center"><a href="https://fang89.github.io/food-recommendation/"><picture><source media="(prefers-color-scheme: dark)" srcset="docs/screenshots/card-dark.png"><img src="docs/screenshots/card-light.png" alt="A place card over the dark map: Generation Coffee Roasters, 4.0, 5 min walk, NE9 Boon Keng" width="760"></picture></a></p>
+<p align="center"><a href="https://fang89.github.io/Singapore-food-recommendation/"><picture><source media="(prefers-color-scheme: dark)" srcset="docs/screenshots/card-dark.png"><img src="docs/screenshots/card-light.png" alt="A place card over the dark map: Generation Coffee Roasters, 4.0, 5 min walk, NE9 Boon Keng" width="760"></picture></a></p>
 
 ## 📋 The list
 
 Sort by travel time, rating, price or walk to the MRT. Click a row and the map flies there.
 
-<p align="center"><a href="https://fang89.github.io/food-recommendation/"><picture><source media="(prefers-color-scheme: dark)" srcset="docs/screenshots/list-dark.png"><img src="docs/screenshots/list-light.png" alt="The sortable list with category chips, ratings, price bands and MRT pills" width="760"></picture></a></p>
+<p align="center"><a href="https://fang89.github.io/Singapore-food-recommendation/"><picture><source media="(prefers-color-scheme: dark)" srcset="docs/screenshots/list-dark.png"><img src="docs/screenshots/list-light.png" alt="The sortable list with category chips, ratings, price bands and MRT pills" width="760"></picture></a></p>
 
 > [!NOTE]
 > **Privacy by design.** The homes are geocoded from postal codes at build time, but only
