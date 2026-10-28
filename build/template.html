@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="color-scheme" content="light dark">
 <meta name="description" content="Food places around Boon Keng, Bendemeer and Geylang Bahru, measured from home.">
 <title>Food Recommendation</title>
@@ -11,6 +11,7 @@
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;600;700;800&family=IBM+Plex+Mono:wght@400;500;600&family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;1,6..72,400&display=swap">
 
 <style>/*__LEAFLET_CSS__*/</style>
+<style>/*__CLUSTER_CSS__*/</style>
 
 <style>
 :root{
@@ -22,6 +23,11 @@
   --ne:#9E28B5; --dt:#005EC4; --ew:#00803A;
   --ns:#C6301A; --cc:#D08700; --te:#8A5525;
   --shadow:0 1px 2px rgba(19,28,36,.05), 0 8px 24px -12px rgba(19,28,36,.18);
+  --drop:rgba(19,28,36,.22);
+  /* One colour per category, handed out biggest category first. */
+  --c1:#C2410C; --c2:#1D6FB8; --c3:#2B8A3E; --c4:#8E3BB0; --c5:#C77700;
+  --c6:#0B7F8C; --c7:#C2255C; --c8:#5F3DC4; --c9:#5C7F0F; --c10:#55606A;
+  --glyph:#FFFFFF; --gold:#F2B705; --on-gold:#3A2A00; --me:#2B7BF5;
   --display:"Archivo",-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
   --body:"Newsreader",Georgia,"Times New Roman",serif;
   --mono:"IBM Plex Mono",ui-monospace,"SF Mono",Menlo,monospace;
@@ -34,8 +40,12 @@
     --accent:#E4726A; --accent-ink:#F0938C; --accent-wash:rgba(228,114,106,.10); --on-accent:#14191C;
     --halo:rgba(21,30,36,.93);
     --ne:#C462D6; --dt:#4D93E8; --ew:#3FBE74;
-  --ns:#EF6A54; --cc:#E8A93A; --te:#C08A55;
+    --ns:#EF6A54; --cc:#E8A93A; --te:#C08A55;
     --shadow:0 1px 2px rgba(0,0,0,.4), 0 8px 24px -12px rgba(0,0,0,.6);
+    --drop:rgba(0,0,0,.55);
+    --c1:#FF8F5A; --c2:#5AAEF5; --c3:#5CCB74; --c4:#CC85EE; --c5:#F5B53D;
+    --c6:#3CC4D2; --c7:#F27AA2; --c8:#9F8CF5; --c9:#A3CC4A; --c10:#A3AEB8;
+    --glyph:#0E1418; --me:#6AA6FF;
   }
 }
 :root[data-theme="dark"]{
@@ -47,92 +57,159 @@
   --ne:#C462D6; --dt:#4D93E8; --ew:#3FBE74;
   --ns:#EF6A54; --cc:#E8A93A; --te:#C08A55;
   --shadow:0 1px 2px rgba(0,0,0,.4), 0 8px 24px -12px rgba(0,0,0,.6);
+  --drop:rgba(0,0,0,.55);
+  --c1:#FF8F5A; --c2:#5AAEF5; --c3:#5CCB74; --c4:#CC85EE; --c5:#F5B53D;
+  --c6:#3CC4D2; --c7:#F27AA2; --c8:#9F8CF5; --c9:#A3CC4A; --c10:#A3AEB8;
+  --glyph:#0E1418; --me:#6AA6FF;
 }
 
 *{box-sizing:border-box}
-body{background:var(--paper); color:var(--ink); font-family:var(--body); font-size:17px; line-height:1.6; -webkit-font-smoothing:antialiased; padding:clamp(16px,3.5vw,48px) clamp(14px,4vw,40px) 40px}
-.wrap{max-width:1240px; margin:0 auto; display:flex; flex-direction:column; gap:clamp(22px,3vw,36px)}
+html{-webkit-text-size-adjust:100%}
+html,body{height:100%}
+body{margin:0; background:var(--paper); color:var(--ink); font-family:var(--body); font-size:16px; line-height:1.5; -webkit-font-smoothing:antialiased}
+button,input,select{font:inherit; color:inherit}
+button{cursor:pointer}
+[hidden]{display:none!important}
 
-header.hero{display:flex; flex-direction:column; gap:10px}
-h1{font-family:var(--display); font-weight:800; font-size:clamp(33px,5.2vw,54px); line-height:1.0; letter-spacing:-.028em; margin:0; text-wrap:balance}
-.cta{display:flex; align-items:center; gap:clamp(16px,2.4vw,28px); flex-wrap:wrap;
-  margin:6px 0 0; padding:clamp(16px,2.1vw,22px) clamp(18px,2.4vw,26px);
-  background:var(--accent-wash); border:1px solid var(--accent); border-radius:4px}
-.addlink{display:inline-flex; align-items:center; gap:9px; font-family:var(--mono); font-size:13px;
-  font-weight:600; letter-spacing:.1em; text-transform:uppercase; color:var(--on-accent);
-  text-decoration:none; border:1.5px solid var(--accent); border-radius:3px; padding:13px 22px;
-  background:var(--accent); white-space:nowrap; flex:0 0 auto;
-  box-shadow:0 2px 10px -4px var(--accent); transition:filter .15s, transform .15s, box-shadow .15s}
-.addlink:hover{filter:brightness(1.1); transform:translateY(-1px); box-shadow:0 5px 16px -5px var(--accent)}
-.addlink:active{transform:translateY(0)}
-.addlink:focus-visible{outline:2px solid var(--accent); outline-offset:3px}
-.cta-copy{flex:1 1 22ch; min-width:0; font-family:var(--body); font-size:16.5px; line-height:1.45; color:var(--ink-2)}
-.cta-copy b.inl{display:inline; font-family:var(--mono); font-size:12.5px; font-weight:600;
-  letter-spacing:.06em; text-transform:uppercase; color:var(--accent-ink); margin:0}
-.pull{font-family:var(--mono); font-size:12.5px; font-weight:600; letter-spacing:.1em;
-  text-transform:uppercase; color:var(--accent-ink); background:transparent; cursor:pointer;
-  border:1.5px solid var(--accent); border-radius:3px; padding:12px 18px; white-space:nowrap;
-  flex:0 0 auto; transition:background .15s, color .15s, transform .15s}
-.pull:hover:not(:disabled){background:var(--accent); color:var(--on-accent); transform:translateY(-1px)}
-.pull:active:not(:disabled){transform:translateY(0)}
-.pull:focus-visible{outline:2px solid var(--accent); outline-offset:3px}
-.pull:disabled{opacity:.55; cursor:progress}
-.pullnote{margin:9px 2px 0; min-height:1.2em; font-family:var(--mono); font-size:12.5px;
-  line-height:1.65; color:var(--ink-3)}
-.pullnote:empty{margin:0; min-height:0}
+/* ---- the shell: list on the left, the map is everything else ----
+   On a phone the list becomes a sheet over a full-screen map; see the end. */
+#app{position:relative; height:100%; display:grid; grid-template-columns:clamp(350px,31vw,430px) minmax(0,1fr)}
+#panel{position:relative; z-index:800; display:flex; flex-direction:column; min-width:0; min-height:0;
+  background:var(--sheet); border-right:1px solid var(--rule)}
+.sheet-handle{display:none}
+.head{display:flex; flex-direction:column; gap:12px; padding:18px 16px 12px}
+.brand{display:flex; align-items:flex-start; gap:10px}
+.brand-text{flex:1; min-width:0}
+.eyebrow{margin:0 0 3px; font-family:var(--mono); font-size:10.5px; font-weight:500; letter-spacing:.12em; text-transform:uppercase; color:var(--ink-3)}
+h1{margin:0; font-family:var(--display); font-weight:800; font-size:23px; line-height:1.05; letter-spacing:-.025em; white-space:nowrap}
+.acts{display:flex; gap:6px; flex:none}
+.pillbtn{display:inline-flex; align-items:center; gap:6px; height:32px; padding:0 11px; border-radius:100px;
+  border:1px solid var(--rule); background:var(--sheet); font-family:var(--mono); font-size:10.5px; font-weight:600;
+  letter-spacing:.08em; text-transform:uppercase; color:var(--accent-ink); text-decoration:none; white-space:nowrap;
+  transition:border-color .15s, background .15s}
+.pillbtn:hover:not(:disabled){border-color:var(--accent); background:var(--accent-wash)}
+.pillbtn.main{background:var(--accent); border-color:var(--accent); color:var(--on-accent)}
+.pillbtn.main:hover{filter:brightness(1.1); background:var(--accent)}
+.pillbtn:disabled{opacity:.55; cursor:progress}
+.pillbtn:focus-visible{outline:2px solid var(--accent); outline-offset:2px}
+.pullnote{margin:-4px 0 0; font-family:var(--mono); font-size:11.5px; line-height:1.6; color:var(--ink-3)}
+.pullnote:empty{display:none}
 .pullnote b{color:var(--ink-2); font-weight:600}
 .pullnote .bad{color:var(--accent-ink)}
-.cta-copy b{display:block; font-family:var(--display); font-weight:700; font-size:17.5px;
-  letter-spacing:-.012em; color:var(--ink); margin-bottom:2px}
 
-.sec-head{display:flex; align-items:center; gap:14px; flex-wrap:wrap; margin-bottom:13px}
-.sec-head h2{font-family:var(--display); font-weight:700; font-size:19px; letter-spacing:-.012em; margin:0}
-.sec-head .note{font-family:var(--mono); font-size:11px; color:var(--ink-3); letter-spacing:.04em}
-.spacer{flex:1 1 auto}
-
-.switch{display:inline-flex; border:1px solid var(--rule); border-radius:3px; overflow:hidden; background:var(--sheet)}
-.switch button{appearance:none; border:0; background:transparent; cursor:pointer; font-family:var(--mono); font-size:11px; font-weight:500; letter-spacing:.09em; text-transform:uppercase; color:var(--ink-2); padding:8px 15px; transition:background .15s,color .15s}
+.from{display:flex; align-items:center; gap:10px}
+.from-k{font-family:var(--mono); font-size:10.5px; font-weight:500; letter-spacing:.1em; text-transform:uppercase; color:var(--ink-3); white-space:nowrap}
+.switch{display:flex; flex:1; border:1px solid var(--rule); border-radius:3px; overflow:hidden; background:var(--sheet)}
+.switch button{flex:1; appearance:none; border:0; background:transparent; font-family:var(--mono); font-size:10.5px; font-weight:500; letter-spacing:.08em; text-transform:uppercase; color:var(--ink-2); padding:7px 8px; white-space:nowrap; transition:background .15s,color .15s}
 .switch button+button{border-left:1px solid var(--rule)}
 .switch button:hover{background:var(--sheet-2); color:var(--ink)}
 .switch button[aria-pressed="true"]{background:var(--accent); color:var(--on-accent)}
 .switch button:focus-visible{outline:2px solid var(--accent); outline-offset:-3px}
 
-.chips{display:flex; flex-wrap:wrap; gap:7px; margin:-2px 0 13px}
-.chip{appearance:none; font-family:var(--mono); font-size:10.5px; font-weight:500;
-  letter-spacing:.08em; text-transform:uppercase; color:var(--ink-2);
-  background:var(--sheet); border:1px solid var(--rule); border-radius:100px;
-  padding:6px 13px; cursor:pointer; transition:color .15s, background .15s, border-color .15s}
-.chip:hover{color:var(--ink); border-color:var(--ink-3)}
-.chip[aria-pressed="true"]{background:var(--accent); border-color:var(--accent); color:var(--on-accent)}
+.search-row{display:flex; gap:8px}
+.search{position:relative; flex:1; min-width:0}
+.search svg{position:absolute; left:12px; top:50%; transform:translateY(-50%); color:var(--ink-3); pointer-events:none}
+.search input{width:100%; height:42px; padding:0 12px 0 37px; border-radius:6px; border:1px solid var(--rule); background:var(--sheet-2); font-family:var(--display); font-size:16px}
+.search input::placeholder{color:var(--ink-3)}
+.search input:focus-visible{outline:2px solid var(--accent); outline-offset:1px}
+.near-btn{flex:none; display:inline-flex; align-items:center; gap:7px; height:42px; padding:0 13px; border-radius:6px;
+  border:1px solid var(--rule); background:var(--sheet); font-family:var(--display); font-weight:600; font-size:14px; white-space:nowrap}
+.near-btn:hover{border-color:var(--ink-3)}
+.near-btn[aria-pressed="true"]{background:var(--me); border-color:var(--me); color:#fff}
+.near-btn:disabled{opacity:.7; cursor:default}
+.near-btn:focus-visible{outline:2px solid var(--accent); outline-offset:2px}
+.near-note{margin:0; padding:9px 12px; border-radius:6px; background:var(--sheet-2); border:1px solid var(--rule); font-size:14px; line-height:1.45}
+
+.chips{display:flex; flex-wrap:wrap; gap:6px}
+.chips::-webkit-scrollbar{display:none}
+.chip{display:inline-flex; align-items:center; gap:6px; height:30px; padding:0 10px 0 5px; border-radius:100px;
+  border:1px solid var(--rule); background:var(--sheet); font-family:var(--display); font-size:13px; font-weight:500;
+  white-space:nowrap; transition:background .15s, border-color .15s, color .15s}
+.chip:hover{border-color:var(--c,var(--ink-3))}
+.chip .n{font-family:var(--mono); font-size:11px; color:var(--ink-3); font-variant-numeric:tabular-nums}
+.chip[aria-pressed="true"]{background:var(--ink); border-color:var(--ink); color:var(--sheet)}
+.chip[aria-pressed="true"] .n{color:inherit; opacity:.7}
+.chip[aria-pressed="true"] .ico{box-shadow:0 0 0 2px var(--sheet)}
+.chip:disabled{opacity:.4; cursor:default}
 .chip:focus-visible{outline:2px solid var(--accent); outline-offset:2px}
-.chip b{font-weight:500; opacity:.6; margin-left:6px}
+
+.meta{display:flex; align-items:center; justify-content:space-between; gap:10px; padding:9px 16px; border-top:1px solid var(--rule-soft); border-bottom:1px solid var(--rule); font-family:var(--mono); font-size:11px; color:var(--ink-2); letter-spacing:.02em}
+.meta-r{display:flex; align-items:center; gap:12px}
+.meta select{appearance:none; border:1px solid var(--rule); border-radius:3px; background:var(--sheet) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='8' height='5'%3E%3Cpath d='M0 0h8L4 5z' fill='%238095A2'/%3E%3C/svg%3E") no-repeat right 8px center;
+  padding:4px 22px 4px 8px; font-family:var(--mono); font-size:11px; color:var(--ink)}
+.link-btn{background:none; border:0; padding:2px 0; color:var(--accent-ink); font-family:var(--mono); font-size:11px; font-weight:600; text-decoration:underline; text-underline-offset:3px}
+
+.scroll{flex:1; min-height:0; overflow-y:auto; overscroll-behavior:contain}
+.list{list-style:none; margin:0; padding:0}
+.item{display:grid; grid-template-columns:28px minmax(0,1fr) auto; gap:0 12px; width:100%; align-items:start; text-align:left;
+  background:none; border:0; border-bottom:1px solid var(--rule-soft); padding:13px 16px; transition:background .12s}
+.item:hover{background:var(--sheet-2)}
+.item:active{background:var(--rule-soft)}
+.item[aria-current="true"]{background:var(--accent-wash); box-shadow:inset 3px 0 0 var(--accent)}
+.item:focus-visible{outline:2px solid var(--accent); outline-offset:-2px}
+.item .ico{margin-top:1px}
+.item-body{display:block; min-width:0}
+.item-name{display:block; font-family:var(--display); font-weight:600; font-size:15.5px; line-height:1.25; letter-spacing:-.01em; overflow-wrap:anywhere}
+.item-meta{display:flex; flex-wrap:wrap; align-items:center; gap:4px 9px; margin-top:5px; font-family:var(--mono); font-size:11px; color:var(--ink-2)}
+.item-meta .c-rate{display:inline; margin:0; font-size:12px}
+.item-note{display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden; margin-top:5px; font-size:15px; line-height:1.35; color:var(--ink-2)}
+.item-note .g{font-family:var(--mono); font-weight:600; font-size:11px; color:var(--accent)}
+.item-tag{display:block; margin-top:6px; font-family:var(--mono); font-size:10px; font-weight:500; letter-spacing:.09em; text-transform:uppercase; color:var(--ink-3)}
+.item-time{text-align:right; min-width:58px}
+.item-time .c-dist{display:block; font-size:15px}
+.item-time .c-walk{margin-top:2px; max-width:110px; margin-left:auto}
+.dist{color:var(--me); font-weight:600}
+.empty{padding:36px 24px; text-align:center; color:var(--ink-2)}
+.empty strong{display:block; color:var(--ink); font-family:var(--display); font-size:17px; margin-bottom:6px}
+.top-tag{display:inline-flex; align-items:center; gap:3px; background:var(--gold); color:var(--on-gold); border-radius:100px; padding:0 7px 0 5px;
+  margin-right:7px; font-size:9.5px; font-weight:700; letter-spacing:.06em; line-height:16px; vertical-align:1px}
+.top-tag::before{content:"\2605"; font-size:10px}
+
+.legend{display:flex; flex-wrap:wrap; gap:6px 16px; align-items:center; padding:14px 16px 6px; font-family:var(--mono); font-size:10.5px; color:var(--ink-2); letter-spacing:.03em}
+.legend i{display:inline-block; vertical-align:middle; margin-right:6px}
+.k-home{width:0; height:0; border-left:7px solid transparent; border-right:7px solid transparent; border-bottom:12px solid var(--ink); margin-bottom:1px}
+.k-ne,.k-dt,.k-ew{width:22px; height:11px; border-radius:6px}
+.k-ne{background:var(--ne)} .k-dt{background:var(--dt)} .k-ew{background:var(--ew)}
+.k-line{width:20px; height:0; border-top:2px solid var(--accent)}
+.k-ring{width:16px; height:16px; border-radius:50%; border:1px dashed var(--ink-3)}
+.colophon{padding:6px 16px 28px; font-family:var(--mono); font-size:10.5px; line-height:1.9; color:var(--ink-3); letter-spacing:.03em}
+.colophon b{color:var(--ink-2); font-weight:500}
+.colophon a{color:var(--ink-2)}
+
+/* ---- category glyphs: chips, list rows and the pins share them ---- */
+.ico{display:inline-grid; place-items:center; flex:none; width:var(--s,20px); height:var(--s,20px); border-radius:50%; background:var(--c)}
+.ico svg{width:62%; height:62%; fill:none; stroke:var(--glyph); stroke-width:2.2; stroke-linecap:round; stroke-linejoin:round}
+.ico.top{background:var(--gold)}
+.ico.top svg{fill:var(--on-gold); stroke:var(--on-gold); stroke-width:1.2}
 
 /* ---- map ---- */
-.mapcard{background:var(--sheet); border:1px solid var(--rule); border-radius:3px; box-shadow:var(--shadow); overflow:hidden; margin:0}
-.mapcard-cap{display:flex; justify-content:space-between; align-items:baseline; gap:12px; padding:13px 16px; border-bottom:1px solid var(--rule-soft); font-family:var(--mono); font-size:11px; letter-spacing:.07em; text-transform:uppercase}
-.mapcard-cap b{color:var(--ink); font-weight:600}
-.mapcard-cap span{color:var(--ink-3); text-transform:none; letter-spacing:.02em; font-variant-numeric:tabular-nums}
-.mapbox{position:relative}
-#map{height:clamp(430px,64vh,700px); width:100%; background:var(--sheet-2)}
-
-/* Said only when a gesture was refused, so it explains itself at the moment
-   it is needed and then gets out of the way. Never intercepts a pointer. */
-.maphint{position:absolute; left:50%; top:14px; z-index:600; transform:translate(-50%,-6px);
-  margin:0; padding:8px 15px; max-width:calc(100% - 28px);
-  border:1px solid var(--rule); border-radius:100px; background:var(--halo);
-  box-shadow:0 1px 2px rgba(0,0,0,.06), 0 10px 26px -14px rgba(0,0,0,.45);
-  font-family:var(--mono); font-size:11px; letter-spacing:.04em; color:var(--ink-2);
-  text-align:center; white-space:nowrap; pointer-events:none;
-  opacity:0; transition:opacity .18s ease, transform .18s ease}
-.maphint.on{opacity:1; transform:translate(-50%,0)}
-.maphint kbd{font:inherit; color:var(--ink); font-weight:600}
+#map{min-width:0; height:100%; background:var(--sheet-2)}
 .leaflet-container{font-family:var(--mono); background:var(--sheet-2)}
 .leaflet-control-attribution{font-family:var(--mono); font-size:9.5px; background:var(--halo)!important; color:var(--ink-3)!important}
 .leaflet-control-attribution a{color:var(--ink-2)!important}
-.leaflet-bar a{background:var(--sheet); color:var(--ink); border-bottom-color:var(--rule)}
-.leaflet-bar a:hover{background:var(--sheet-2); color:var(--ink)}
-.leaflet-bar{border:1px solid var(--rule); box-shadow:none}
-.leaflet-container .leaflet-control-zoom a{width:36px; height:36px; line-height:34px; font-size:21px; font-weight:500}
+.leaflet-control-zoom{border:0!important; box-shadow:0 1px 6px var(--drop)!important; border-radius:8px; overflow:hidden}
+.leaflet-bar.leaflet-control-zoom a{background:var(--sheet); color:var(--ink); border-bottom-color:var(--rule); width:38px; height:38px; line-height:37px; font-size:21px; font-weight:500}
+.leaflet-bar.leaflet-control-zoom a:hover{background:var(--sheet-2); color:var(--ink)}
+
+.pin-wrap{background:none; border:0}
+.pin{position:relative; display:grid; place-items:center; width:28px; height:28px; border-radius:50%; background:var(--c);
+  border:2.5px solid var(--sheet); box-shadow:0 1px 5px var(--drop); transition:transform .15s, box-shadow .15s;
+  animation:pinIn .26s cubic-bezier(.2,.9,.3,1.25)}
+.pin>svg{width:15px; height:15px; fill:none; stroke:var(--glyph); stroke-width:2.3; stroke-linecap:round; stroke-linejoin:round}
+.pin-wrap:hover .pin, .pin-wrap.is-active .pin{transform:scale(1.28)}
+.pin-wrap.is-active .pin{box-shadow:0 0 0 3px var(--accent), 0 2px 8px var(--drop)}
+.pin-wrap:focus-visible{outline:none}
+.pin-wrap:focus-visible .pin{box-shadow:0 0 0 3px var(--accent)}
+.star{position:absolute; top:-7px; right:-7px; display:grid; place-items:center; width:17px; height:17px; padding:2px; border-radius:50%; background:var(--gold); box-shadow:0 0 0 2px var(--sheet)}
+.star svg{width:100%; height:100%; fill:var(--on-gold)}
+.cl-wrap{background:none; border:0}
+.cl{display:grid; place-items:center; width:100%; height:100%; border-radius:50%; background:var(--ink); color:var(--sheet);
+  font:600 13px var(--mono); border:3px solid var(--sheet); box-shadow:0 1px 6px var(--drop); font-variant-numeric:tabular-nums}
+@keyframes pinIn{from{transform:scale(.5); opacity:0} to{transform:scale(1); opacity:1}}
+
+.me-wrap{background:none; border:0}
+.me-dot{display:block; width:22px; height:22px; border-radius:50%; background:var(--me); border:4px solid #fff; box-shadow:0 0 0 1px rgba(0,0,0,.15), 0 2px 8px var(--drop)}
+.me-acc{fill:var(--me); fill-opacity:.13; stroke:var(--me); stroke-width:1px; stroke-opacity:.5}
 
 .hm{display:grid; place-items:center; cursor:pointer}
 .hm svg{display:block; width:32px; height:28px; overflow:visible;
@@ -160,14 +237,15 @@ h1{font-family:var(--display); font-weight:800; font-size:clamp(33px,5.2vw,54px)
 .leaflet-tooltip.lbl.stn.EW{border-color:var(--ew); color:var(--ew)}
 .leaflet-tooltip.lbl.on{border-color:var(--accent); color:var(--accent-ink)}
 .zoomed-out .leaflet-tooltip.lbl.place{display:none}
+/* Far out, every station on the network is already printed on the basemap. */
+.far .leaflet-tooltip.lbl.stn, .far .mrt{display:none}
 .leaflet-tooltip.lbl.place{cursor:pointer; transition:border-color .15s, color .15s, background .15s}
 .leaflet-tooltip.lbl.place:hover{border-color:var(--accent); color:var(--accent-ink)}
-.leaflet-interactive.hit{cursor:pointer}
-#map .leaflet-interactive:focus{outline:none}
-#map .leaflet-interactive:focus-visible{outline:2px solid var(--accent); outline-offset:2px}
 
 .leaflet-popup-content-wrapper{background:var(--sheet); color:var(--ink); border:1px solid var(--rule);
-  border-radius:4px; box-shadow:0 2px 4px rgba(0,0,0,.10), 0 14px 34px -14px rgba(0,0,0,.42); padding:0; overflow:hidden}
+  border-radius:6px; box-shadow:0 2px 4px rgba(0,0,0,.10), 0 14px 34px -14px rgba(0,0,0,.42); padding:0; overflow:hidden;
+  animation:popIn .18s ease-out; transform-origin:50% 100%}
+@keyframes popIn{from{transform:translateY(6px) scale(.96); opacity:0} to{transform:none; opacity:1}}
 .leaflet-popup-tip{background:var(--sheet); border:1px solid var(--rule)}
 .leaflet-popup-content{margin:0; font-family:var(--body); line-height:1.45; width:auto!important}
 .leaflet-container a.leaflet-popup-close-button{color:var(--ink-3); top:7px; right:7px; width:22px; height:22px; font-size:17px; line-height:20px}
@@ -175,10 +253,11 @@ h1{font-family:var(--display); font-weight:800; font-size:clamp(33px,5.2vw,54px)
 
 .card{display:flex; flex-direction:column}
 .card-head{padding:15px 17px 13px; border-bottom:1px solid var(--rule-soft); background:var(--sheet-2)}
-.card-cat{font-family:var(--mono); font-size:10px; font-weight:600; letter-spacing:.12em; text-transform:uppercase;
-  color:var(--accent-ink); margin:0 0 5px}
+.card-cat{display:flex; align-items:center; flex-wrap:wrap; gap:6px; font-family:var(--mono); font-size:10px; font-weight:600; letter-spacing:.12em; text-transform:uppercase;
+  color:var(--ink-2); margin:0 22px 6px 0}
 .card-name{font-family:var(--display); font-weight:700; font-size:17px; line-height:1.18; letter-spacing:-.018em;
   color:var(--ink); margin:0 22px 0 0; text-wrap:balance}
+.card-me{margin:5px 0 0; font-family:var(--mono); font-size:11px; font-weight:600; color:var(--me)}
 .card-grid{display:grid; grid-template-columns:1fr 1fr; border-bottom:1px solid var(--rule-soft)}
 .stat{padding:11px 17px; min-width:0}
 .stat+.stat{border-left:1px solid var(--rule-soft)}
@@ -204,199 +283,123 @@ h1{font-family:var(--display); font-weight:800; font-size:clamp(33px,5.2vw,54px)
   background:var(--accent); color:var(--on-accent); border-color:var(--accent)}
 .go.block:hover{filter:brightness(1.1); background:var(--accent)}
 
-.legend{display:flex; flex-wrap:wrap; gap:8px 20px; align-items:center; padding:11px 16px; border-top:1px solid var(--rule-soft); font-family:var(--mono); font-size:10.5px; color:var(--ink-2); letter-spacing:.03em}
-.legend i{display:inline-block; vertical-align:middle; margin-right:7px}
-.k-home,.k-off{width:0; height:0; border-left:7px solid transparent;
-  border-right:7px solid transparent; margin-bottom:1px}
-.k-home{border-bottom:12px solid var(--ink)}
-.k-off{border-bottom:12px solid var(--ink-3); opacity:.55}
-.k-place{width:11px; height:11px; border-radius:50%; background:var(--accent)}
-.k-ne{width:22px; height:11px; border-radius:6px; background:var(--ne)}
-.k-dt{width:22px; height:11px; border-radius:6px; background:var(--dt)}
-.k-ew{width:22px; height:11px; border-radius:6px; background:var(--ew)}
-.k-line{width:20px; height:0; border-top:2px solid var(--accent)}
-
-/* ---- sortable list ---- */
-.tablewrap{overflow-x:auto; background:var(--sheet); border:1px solid var(--rule); border-radius:3px; box-shadow:var(--shadow)}
-table{border-collapse:collapse; width:100%; min-width:1250px}
-thead th{text-align:left; padding:0; border-bottom:1px solid var(--rule); background:var(--sheet-2); white-space:nowrap; vertical-align:bottom}
-th .lbl2, th button{display:block; width:100%; text-align:left; padding:11px 14px; font-family:var(--mono); font-size:10.5px; font-weight:500; letter-spacing:.11em; text-transform:uppercase; color:var(--ink-3)}
-th button{appearance:none; background:transparent; border:0; cursor:pointer; transition:color .15s, background .15s}
-th button:hover{color:var(--ink); background:var(--rule-soft)}
-th button:focus-visible{outline:2px solid var(--accent); outline-offset:-3px}
-th button .car{opacity:0; margin-left:6px; font-size:8px; vertical-align:2px}
-th button:hover .car{opacity:.45}
-th[aria-sort="ascending"] button, th[aria-sort="descending"] button{color:var(--accent-ink)}
-th[aria-sort="ascending"] .car, th[aria-sort="descending"] .car{opacity:1}
-th.num, td.num{text-align:right}
-th.num .lbl2, th.num button{text-align:right}
-tbody tr{cursor:pointer; transition:background .15s}
-tbody tr:hover{background:var(--sheet-2)}
-tbody tr:focus-visible{outline:2px solid var(--accent); outline-offset:-2px}
-tbody tr[aria-selected="true"]{background:var(--accent-wash); box-shadow:inset 3px 0 0 var(--accent)}
-td{padding:13px 14px; border-bottom:1px solid var(--rule-soft); vertical-align:top}
-tbody tr:last-child td{border-bottom:none}
-/* The lead column. Right-aligned so the minutes line up against each other -
-   they are there to be compared - but padded off the edge so they do not sit
-   flush against the rule.
-
-   A definite width, not width:1%. Under auto table layout a percentage column
-   takes a share of whatever slack the table has left over, and the slack grows
-   as the content shrinks - so measuring from the nearest house, where every
-   value is "3 min / walk 217 m", made this column swell to 259px and stranded
-   its right-aligned numbers half a column from their label. */
-/* A definite width, and the second line is allowed to wrap inside it.
-   It used to be nowrap, which made the whole column as wide as its single
-   longest row: from B's Hse one journey reads "bus + train - 11 min walk -
-   1 change", so the column stretched to fit 36 characters and every "3 min"
-   beside it right-aligned to the far edge, a hand's width from its own
-   heading. Nothing was misaligned - one row was twice as wide as the rest. */
-/* Left-aligned, but the digits still line up: c-dist carries tabular figures,
-   so "4 min" and "17 min" agree on where the numerals sit. */
-th.first, td.first{width:136px; padding-left:18px}
-td.first .c-dist{white-space:nowrap}
-
-/* The table is held at min-width:1180px, so on most screens it is wider than
-   its contents and the browser has slack to hand out. Under auto layout it
-   shares that slack around, and the share moves with the content - measuring
-   from the nearest house shrinks every value in the lead column, which then
-   swelled to 259px and stranded its right-aligned numbers half a column away
-   from their own label. Naming one column as the place the slack goes fixes
-   every other column at the width it asked for. Prose is the right absorber. */
-th.grow{width:100%}
-/* Who put it on the list. Three names, one word each, so it reads as a tag
-   rather than a column of prose. */
-th.by, td.by{width:1%; white-space:nowrap}
 .who{display:inline-block; font-family:var(--mono); font-size:9.5px; font-weight:600;
   letter-spacing:.1em; text-transform:uppercase; color:var(--ink-2);
-  background:var(--sheet-2); border:1px solid var(--rule); border-radius:100px; padding:3px 9px}
-.card-cat .who{margin-left:7px; vertical-align:1px; background:transparent}
-/* Names and notes are the two columns that can take the slack; without a share
-   of it the names wrap to four lines while the notes run on for a paragraph. */
-th.wide{width:22%}
-.c-name{font-family:var(--display); font-weight:600; font-size:15.5px; letter-spacing:-.01em; color:var(--ink); line-height:1.25; min-width:19ch}
-.c-cat{display:block; font-family:var(--mono); font-size:10.5px; font-weight:400; letter-spacing:.05em; text-transform:uppercase; color:var(--ink-3); margin-top:4px}
+  background:transparent; border:1px solid var(--rule); border-radius:100px; padding:1px 8px}
 .c-dist{font-family:var(--mono); font-size:16.5px; font-weight:600; font-variant-numeric:tabular-nums; color:var(--ink); white-space:nowrap; letter-spacing:-.02em}
 .c-walk.est{opacity:.72; font-style:italic}
 .c-walk{font-family:var(--mono); font-size:10.5px; color:var(--ink-2); font-variant-numeric:tabular-nums; display:block; margin-top:3px; line-height:1.4}
 .pill{display:inline-block; font-family:var(--mono); font-size:10px; font-weight:600; letter-spacing:.04em; color:#fff; padding:2px 7px; border-radius:9px; white-space:nowrap}
 .pill.NE{background:var(--ne)} .pill.DT{background:var(--dt)} .pill.EW{background:var(--ew)}
 /* The rest of the network. Only these three lines are drawn on the map, but
-   any station can be named in the table, so every line needs its colour. */
+   any station can be named in a row, so every line needs its colour. */
 .pill.NS{background:var(--ns)} .pill.CC{background:var(--cc)} .pill.CE{background:var(--cc)}
 .pill.TE{background:var(--te)} .pill.CG{background:var(--ew)}
-.c-stn{display:block; font-family:var(--mono); font-size:11px; color:var(--ink-2); margin-top:4px; white-space:nowrap; font-variant-numeric:tabular-nums}
 .stars{display:inline-flex; gap:2.5px; align-items:center; vertical-align:middle}
 .stars i{width:9px; height:9px; border-radius:50%; background:var(--rule); display:block}
 .stars i.f{background:var(--accent)}
 .stars i.h{background:linear-gradient(90deg,var(--accent) 50%,var(--rule) 50%)}
-.c-rate{font-family:var(--mono); font-size:14px; font-weight:600; font-variant-numeric:tabular-nums; color:var(--ink); display:block; margin-bottom:5px; letter-spacing:-.01em}
-.pb{font-family:var(--mono); font-size:15px; font-weight:600; letter-spacing:1px; white-space:nowrap}
+.c-rate{font-family:var(--mono); font-size:14px; font-weight:600; font-variant-numeric:tabular-nums; color:var(--ink); letter-spacing:-.01em}
+.pb{font-family:var(--mono); font-size:13px; font-weight:600; letter-spacing:1px; white-space:nowrap}
 .pb span{color:var(--rule)}
 .pb span.on{color:var(--ink)}
-.c-note{min-width:19ch; font-family:var(--body); font-size:16px; line-height:1.4}
-.c-note span{display:block}
-.c-note .pl{color:var(--ink)} .c-note .mi{color:var(--ink-2); margin-top:3px}
-.c-note .g{font-family:var(--mono); font-weight:600; font-size:12px}
-.c-note .pl .g{color:var(--accent)} .c-note .mi .g{color:var(--ink-3)}
 .c-none{font-family:var(--mono); font-size:11px; color:var(--ink-3); letter-spacing:.04em; font-style:normal}
-
-.colophon{border-top:1px solid var(--rule); padding-top:14px; margin-top:6px;
-  font-family:var(--mono); font-size:10.5px; line-height:1.9; color:var(--ink-3); letter-spacing:.04em}
-.colophon b{color:var(--ink-2); font-weight:500}
-.colophon a{color:var(--ink-2)}
 .sr{position:absolute; width:1px; height:1px; overflow:hidden; clip:rect(0 0 0 0); white-space:nowrap}
-html{-webkit-text-size-adjust:100%}
 
-/* A phone held upright. The layout already reflows - what it needs is smaller
-   type, a map that leaves room for the list under it, and a hint pill that
-   wraps instead of running off the edge. */
-@media (max-width:640px){
-  body{font-size:16px; padding:18px 14px 32px}
-  h1{font-size:31px}
-  #map{height:clamp(340px,56vh,470px)}
-  .sec-head{gap:6px 12px}
-  .sec-head .note{font-size:10px; letter-spacing:.02em}
-  .legend{gap:7px 14px; font-size:10px}
-  .maphint{font-size:10px; letter-spacing:.02em; white-space:normal}
+/* ---- phones: the panel becomes a bottom sheet over a full-screen map ---- */
+@media (max-width:760px){
+  #app{display:block}
+  #map{position:absolute; inset:0}
+  #panel{position:fixed; left:0; right:0; bottom:0; height:80vh; height:80dvh;
+    border:1px solid var(--rule); border-bottom:0; border-radius:18px 18px 0 0; box-shadow:0 -8px 30px var(--drop);
+    padding-bottom:env(safe-area-inset-bottom,0px); transition:height .28s cubic-bezier(.2,.8,.2,1)}
+  #panel[data-sheet="peek"]{height:calc(176px + env(safe-area-inset-bottom,0px))}
+  .sheet-handle{display:flex; align-items:center; justify-content:center; flex:none; width:100%; height:22px; padding:0; border:0; background:none}
+  .sheet-handle::before{content:""; width:40px; height:4px; border-radius:2px; background:var(--rule)}
+  .head{padding:0 16px 10px; gap:10px}
+  h1{font-size:19px; margin-top:4px}
+  /* The sheet covers the bottom of the map, so the credit moves to the top. */
+  .leaflet-bottom.leaflet-right{top:0; bottom:auto}
+  .eyebrow{display:none}
+  #panel[data-sheet="peek"] .from, #panel[data-sheet="peek"] .meta, #panel[data-sheet="peek"] .scroll,
+  #panel[data-sheet="peek"] .pullnote, #panel[data-sheet="peek"] .near-note{display:none}
+  .chips{flex-wrap:nowrap; overflow-x:auto; scrollbar-width:none; margin:0 -16px; padding:0 16px}
+  .leaflet-control-zoom{display:none}
 }
-
 @media (prefers-reduced-motion:reduce){ *{transition:none!important; animation:none!important} }
 </style>
 </head>
 
 <body>
-<div class="wrap">
-
-  <header class="hero">
-    <h1>Food recommendation</h1>
-    <div class="cta">
-      <a class="addlink" href="__SHEET_URL__" target="_blank" rel="noopener noreferrer">Add a place to the sheet &#8599;</a>
-      <p class="cta-copy"><b>Got somewhere better?</b>Add a row — name, category, plus, minus, rating, price band, address — then press <b class="inl">Pull from sheet</b> to see it here straight away.</p>
-      <button class="pull" id="pull" type="button">Pull from sheet &#8635;</button>
-    </div>
-    <p class="pullnote" id="pullnote" role="status" aria-live="polite"></p>
-  </header>
-
-  <section>
-    <div class="sec-head">
-      <h2>Measured from</h2>
-      <div class="switch" id="switch" role="group" aria-label="Choose which home to measure from"></div>
-      <span class="spacer"></span>
-      <span class="note" id="mapnote">Click any red marker or label for the card</span>
-    </div>
-
-    <figure class="mapcard">
-      <figcaption class="mapcard-cap"><b>Street plan</b><span id="capRing">rings every 250 m</span></figcaption>
-      <div class="mapbox">
-        <div id="map"></div>
-        <p class="maphint" id="maphint" aria-hidden="true"></p>
+<div id="app">
+  <aside id="panel" data-sheet="peek" aria-label="Places">
+    <button class="sheet-handle" id="handle" type="button" aria-expanded="false" aria-controls="list" aria-label="Show or hide the list of places"></button>
+    <div class="head">
+      <div class="brand">
+        <div class="brand-text">
+          <p class="eyebrow">Singapore · Boon Keng &amp; around</p>
+          <h1>Food recommendation</h1>
+        </div>
+        <div class="acts">
+          <a class="pillbtn main" href="__SHEET_URL__" target="_blank" rel="noopener noreferrer" title="Add a row to the shared sheet">Add &#8599;</a>
+          <button class="pillbtn" id="pull" type="button" title="Re-read the sheet and redraw this page">Pull &#8635;</button>
+        </div>
       </div>
+      <p class="pullnote" id="pullnote" role="status" aria-live="polite"></p>
+      <div class="search-row">
+        <div class="search">
+          <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+          <input id="q" type="search" placeholder="Search food, dish or area" autocomplete="off" aria-label="Search places">
+        </div>
+        <button class="near-btn" id="near" type="button" aria-pressed="false" title="Sort by distance from where you are">
+          <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3"/></svg>
+          <span id="nearLabel">Near me</span>
+        </button>
+      </div>
+      <p class="near-note" id="nearNote" role="status" hidden></p>
+      <div class="chips" id="chips" role="group" aria-label="Filter by category"></div>
+      <div class="from">
+        <span class="from-k">From</span>
+        <div class="switch" id="switch" role="group" aria-label="Choose which home to measure from"></div>
+      </div>
+    </div>
+    <div class="meta">
+      <span id="count" aria-live="polite"></span>
+      <span class="meta-r">
+        <button class="link-btn" id="clear" type="button" hidden>Clear</button>
+        <label class="sr" for="sort">Sort by</label>
+        <select id="sort">
+          <option value="time">Quickest</option>
+          <option value="near" hidden>Nearest to me</option>
+          <option value="rating">Rating</option>
+          <option value="price">Cheapest</option>
+          <option value="mrt">Nearest MRT</option>
+          <option value="name">Name</option>
+          <option value="by">Recommended by</option>
+        </select>
+      </span>
+    </div>
+    <div class="scroll">
+      <ul class="list" id="list"></ul>
       <div class="legend">
-        <span><i class="k-home"></i>datum</span>
-        <span><i class="k-off"></i>other door</span>
-        <span><i class="k-place"></i>food</span>
-        <span><i class="k-ne"></i>North East</span>
-        <span><i class="k-dt"></i>Downtown</span>
-        <span><i class="k-ew"></i>East West</span>
+        <span><i class="k-home"></i>home</span>
+        <span><i class="k-ring"></i><span id="capRing">rings</span></span>
         <span><i class="k-line"></i>selected run</span>
+        <span><i class="k-ne"></i>NE</span>
+        <span><i class="k-dt"></i>DT</span>
+        <span><i class="k-ew"></i>EW</span>
       </div>
-    </figure>
-    <p class="sr" id="live" role="status" aria-live="polite"></p>
-  </section>
-
-  <section>
-    <div class="sec-head">
-      <h2>The list</h2>
-      <span class="note">Click a column to sort · click a row to find it on the map</span>
+      <footer class="colophon">
+        <span id="colo">10 places</span> · source: a shared Google Sheet · geocoded and routed with <b>OneMap SG</b> · rings are straight-line distances · basemap <b>OneMap</b> &copy; <a href="https://www.sla.gov.sg/">SLA</a>
+      </footer>
     </div>
-    <div class="chips" id="chips" role="group" aria-label="Filter by category"></div>
-    <div class="tablewrap">
-      <table id="list">
-        <thead>
-          <tr>
-            <th class="first" scope="col" data-sort="dist" aria-sort="ascending"><button type="button"><span id="thFrom">From home</span><span class="car">&#9650;</span></button></th>
-            <th class="wide" scope="col" data-sort="name" aria-sort="none"><button type="button">Place<span class="car">&#9650;</span></button></th>
-            <th class="by" scope="col" data-sort="by" aria-sort="none"><button type="button">By<span class="car">&#9650;</span></button></th>
-            <th scope="col" data-sort="rating" aria-sort="none"><button type="button">Rating<span class="car">&#9650;</span></button></th>
-            <th scope="col" data-sort="price" aria-sort="none"><button type="button">Price<span class="car">&#9650;</span></button></th>
-            <th class="grow" scope="col"><span class="lbl2">Plus &amp; minus</span></th>
-            <th scope="col" data-sort="mrt" aria-sort="none"><button type="button">Nearest MRT<span class="car">&#9650;</span></button></th>
-            <th scope="col"><span class="lbl2">Go</span></th>
-          </tr>
-        </thead>
-        <tbody id="rows"></tbody>
-      </table>
-    </div>
-  </section>
-
-  <footer class="colophon">
-    <span id="colo">10 places</span> · source: Google Sheet, refreshed 23 Aug 2026 · geocoded with <b>OneMap SG</b> · straight-line distances, allow 15–30% more on foot · basemap <b>OneMap</b> &copy; <a href="https://www.sla.gov.sg/">SLA</a>
-  </footer>
-
+  </aside>
+  <main id="map" aria-label="Map of places"></main>
 </div>
+<p class="sr" id="live" role="status" aria-live="polite"></p>
 
 <script>/*__LEAFLET_JS__*/</script>
+<script>/*__CLUSTER_JS__*/</script>
 <script>
 (function(){
   "use strict";
@@ -481,10 +484,18 @@ html{-webkit-text-size-adjust:100%}
            p.lat.toFixed(6)+","+p.lng.toFixed(6)+"&travelmode=walking";
   }
 
+  // The map is the page now: it fills the window beside the list, or sits under
+  // the list's sheet on a phone. Nothing else on the page scrolls, so a plain
+  // wheel and a one-finger drag both belong to the map.
+  var REDUCED=!!(window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches);
+  var phone=window.matchMedia("(max-width: 760px)");
+  var map=L.map("map",{zoomControl:false, zoomSnap:.25, zoomDelta:.5, wheelPxPerZoomLevel:90,
+    minZoom:12, maxZoom:19, maxBounds:[[1.13,103.56],[1.50,104.12]], maxBoundsViscosity:.85});
+  L.control.zoom({position:"topright"}).addTo(map);
+
   // Tiles come live from OneMap, which needs no key (CARTO, the previous source,
   // began stamping "API key required" over every tile in Oct 2026). OneMap only
   // draws Singapore and its zoom-11 tiles are a print-style sheet with an inset box, so the map stops at 12.
-  var map=L.map("map",{scrollWheelZoom:false, zoomSnap:.25, minZoom:12, maxZoom:19});
   var ATTR='<a href="https://www.onemap.gov.sg/">OneMap</a> &copy; contributors | <a href="https://www.sla.gov.sg/">Singapore Land Authority</a>';
   var layer=null;
   function setTiles(){
@@ -500,80 +511,76 @@ html{-webkit-text-size-adjust:100%}
   // Leaflet 1.9 ships a Ukrainian flag inside its own attribution prefix.
   // Naming the prefix ourselves keeps the credit and drops the flag.
   map.attributionControl.setPrefix('<a href="https://leafletjs.com" title="A JavaScript library for interactive maps">Leaflet</a>');
-  // Zooming, with a mouse and with a thumb.
-  //
-  // The map is a tall panel in the middle of a page that scrolls, so it must
-  // not swallow a scroll meant for the page. Two gestures reach it without
-  // that ambiguity, and both are the ones Google Maps already taught everyone:
-  // hold Cmd (Ctrl off a Mac) and turn the wheel, or pinch. macOS sends a
-  // trackpad pinch as a wheel event with ctrlKey set, so that lands here too.
-  // A plain wheel keeps scrolling the page - until you click the map, after
-  // which the map is plainly the thing you are using and the wheel zooms it.
-  var COARSE=!!(window.matchMedia && window.matchMedia("(pointer:coarse)").matches);
-  var APPLE=/Mac|iPhone|iPad|iPod/.test((navigator.platform||"")+" "+(navigator.userAgent||""));
-  var mapEl=map.getContainer();
 
-  // One finger scrolls the page; two fingers work the map. Turning dragging
-  // off leaves Leaflet's touch-action at "pan-x pan-y", so the browser keeps
-  // the one-finger scroll for itself and hands the pinch to the map. A
-  // two-finger drag still pans, because the pinch handler follows its own
-  // centre. Deciding this up front matters: touch-action is read when a
-  // gesture begins, so flipping it mid-gesture would miss the first one.
-  if(COARSE) map.dragging.disable();
-
-  var hintEl=document.getElementById("maphint"), hintTimer=null;
-  hintEl.innerHTML=COARSE
-    ? "Use two fingers to move and zoom the map"
-    : "Hold <kbd>"+(APPLE?"\u2318":"Ctrl")+"</kbd> and scroll to zoom, or click the map first";
-  function hint(){
-    hintEl.classList.add("on");
-    clearTimeout(hintTimer);
-    hintTimer=setTimeout(function(){ hintEl.classList.remove("on"); },1700);
-  }
-  var mapNote=document.getElementById("mapnote");
-  if(mapNote) mapNote.innerHTML="Click any red marker or label for the card \u00b7 "+
-    (COARSE ? "pinch with two fingers to zoom"
-            : "hold "+(APPLE?"\u2318":"Ctrl")+" and scroll to zoom");
-
-  var armed=false, wheelSum=0, wheelPt=null, wheelTimer=null, wheelLast=0;
-  mapEl.addEventListener("wheel",function(e){
-    if(!(e.ctrlKey||e.metaKey||armed)){ hint(); return; }   // the page keeps the scroll
-    e.preventDefault();
-    var now=+new Date();
-    if(now-wheelLast>500) wheelSum=0;                       // a new gesture, not the last one
-    wheelLast=now;
-    wheelSum+= -e.deltaY*(e.deltaMode===1 ? 20 : e.deltaMode===2 ? 60 : 1);
-    wheelPt=map.mouseEventToContainerPoint(e);
-    clearTimeout(wheelTimer);
-    wheelTimer=setTimeout(function(){
-      // One wheel notch is about half a zoom level, snapped to the map's own
-      // 0.25 step and capped so a hard flick cannot throw the view off Kallang.
-      var dz=Math.max(-2,Math.min(2,wheelSum/240));
-      dz=Math.round(dz/.25)*.25;
-      if(!dz) return;              // a trackpad pinch arrives in slivers - keep them
-      wheelSum=0;
-      map.setZoomAround(wheelPt, map.getZoom()+dz);
-    },40);
-  },{passive:false});
-
-  mapEl.addEventListener("click",function(){ armed=true; });
-  mapEl.addEventListener("mouseleave",function(){ armed=false; });
-  mapEl.addEventListener("touchmove",function(e){
-    if(e.touches && e.touches.length===1) hint();
-  },{passive:true});
-
-  var state={home:0, sel:null, cat:null, sortKey:"dist", sortDir:1};
+  var state={home:0, sel:null, cats:new Set(), top:false, q:"", sortKey:"time", me:null, nearest:null};
   var SORTS={
+    time:function(a,b){ return tripMin(a)-tripMin(b) || a.d-b.d; },
+    near:function(a,b){ return state.me ? a.p.dist-b.p.dist : SORTS.time(a,b); },
     name:function(a,b){ return a.p.name.localeCompare(b.p.name); },
     by:function(a,b){ return (a.p.by||"~").localeCompare(b.p.by||"~") || b.p.rating-a.p.rating; },
-    dist:function(a,b){ return tripMin(a)-tripMin(b) || a.d-b.d; },
     mrt:function(a,b){ return a.p.mrtD-b.p.mrtD; },
-    rating:function(a,b){ return a.p.rating-b.p.rating || b.d-a.d; },
+    rating:function(a,b){ return b.p.rating-a.p.rating || a.d-b.d; },
     price:function(a,b){ return a.p.price.length-b.p.price.length || b.p.rating-a.p.rating; }
   };
 
+  // ------------------------------------------------------- category glyphs ---
+  // Categories are whatever the sheet says, so a glyph is picked by what the
+  // name sounds like, and a colour is handed out the first time a name is seen:
+  // biggest category first, so the commonest pins get the most distinct hues.
+  // A category a pull brings in later takes the next colour, and nothing that
+  // was already on the map changes colour under the reader.
+  var GLYPH={
+    bowl:'<path d="M3.5 11.5h17a8.5 8.5 0 0 1-17 0Z"/><path d="M8 3.5v4M12 3.5v4M16 3.5v4"/>',
+    chop:'<path d="M3.5 12h17a8.5 8.5 0 0 1-17 0Z"/><path d="M8.5 9 15 2.5M12.5 9.5 19 4"/>',
+    cup:'<path d="M5 9.5h11v4.5a5.5 5.5 0 0 1-11 0Z"/><path d="M16 11h1.5a2.5 2.5 0 0 1 0 5H16"/><path d="M8.5 3.5v3M12 3.5v3"/>',
+    mug:'<path d="M6 7h9v12a1.5 1.5 0 0 1-1.5 1.5h-6A1.5 1.5 0 0 1 6 19Z"/><path d="M15 10h2a2 2 0 0 1 2 2v3a2 2 0 0 1-2 2h-2"/><path d="M9 11v6M12 11v6"/>',
+    cone:'<path d="M6.5 10a5.5 5.5 0 0 1 11 0Z"/><path d="M7.5 10 12 21l4.5-11"/>',
+    star:'<path d="M12 2.8l2.8 5.9 6.4.8-4.7 4.4 1.2 6.4L12 17.2l-5.7 3.1 1.2-6.4-4.7-4.4 6.4-.8z"/>'
+  };
+  function glyphFor(c){
+    var s=c.toLowerCase();
+    if(/caf|coffee|tea|brunch|bak/.test(s)) return GLYPH.cup;
+    if(/beer|bar\b|wine|drink|pub|cocktail/.test(s)) return GLYPH.mug;
+    if(/dessert|sweet|ice cream|cake/.test(s)) return GLYPH.cone;
+    if(/chinese|noodle|jap|korean|ramen|thai|viet/.test(s)) return GLYPH.chop;
+    return GLYPH.bowl;
+  }
+  function catOf(p){ return p.cat||"Uncategorised"; }
+  var HUE={}, nHue=0;
+  function hue(c){ if(!(c in HUE)) HUE[c]=nHue++; return "var(--c"+(HUE[c]%10+1)+")"; }
+  function cats(list){
+    var n={}, order=[];
+    list.forEach(function(p){ var c=catOf(p); if(!(c in n)){ n[c]=0; order.push(c); } n[c]++; });
+    order.sort(function(a,b){ return n[b]-n[a] || a.localeCompare(b); });
+    return order;
+  }
+  cats(PLACES).forEach(hue);
+  function ico(c,size){
+    return '<span class="ico" style="--c:'+hue(c)+';--s:'+size+'px"><svg viewBox="0 0 24 24" aria-hidden="true">'+glyphFor(c)+'</svg></span>';
+  }
+  // Top rated is the sheet's own verdict, so it earns the gold star on the pin.
+  var TOP=4.5;
+  function isTop(p){ return p.rating>=TOP; }
+  function pinIcon(p){
+    var c=catOf(p);
+    return L.divIcon({className:"pin-wrap", iconSize:[28,28],
+      html:'<span class="pin" style="--c:'+hue(c)+'"><svg viewBox="0 0 24 24" aria-hidden="true">'+glyphFor(c)+'</svg>'+
+        (isTop(p)?'<span class="star"><svg viewBox="0 0 24 24" aria-hidden="true">'+GLYPH.star+'</svg></span>':'')+'</span>'});
+  }
+
+  // --------------------------------------------------------------- markers ---
   var gRings=L.layerGroup().addTo(map), gLines=L.layerGroup().addTo(map);
-  var placeMarkers={}, homeMarkers={}, lastMarkerClick=0;
+  var placeMarkers={}, homeMarkers={}, lastMarkerClick=0, onMap={}, drawing=false;
+
+  // Close pins merge into a counted bubble until zoom 15, where every pin
+  // stands alone again. Clicking a bubble zooms to what is inside it.
+  var cluster=L.markerClusterGroup({showCoverageOnHover:false, maxClusterRadius:44,
+    disableClusteringAtZoom:15, spiderfyOnMaxZoom:false,
+    iconCreateFunction:function(c){
+      var n=c.getChildCount(), s=n<10?36:n<40?42:48;
+      return L.divIcon({html:'<span class="cl">'+n+'</span>', className:"cl-wrap", iconSize:[s,s]});
+    }});
+  map.addLayer(cluster);
 
   MRT.forEach(function(s){
     L.marker([s.lat,s.lng],{
@@ -583,32 +590,36 @@ html{-webkit-text-size-adjust:100%}
      .bindTooltip(esc(s.name),{permanent:true, direction:s.dir, offset:[s.dir==="right"?28:-28,0], className:"lbl stn "+s.line, opacity:1});
   });
 
-  // Each place is three stacked circles: a fat invisible hit target that owns all
-  // the interaction, a faint target ring, and the dot itself. The ring and dot are
-  // non-interactive, so pointer events fall through to the 20px hit target below.
+  function popBottom(){ return phone.matches ? [16,196] : [16,16]; }
   function addMarker(p){
-    var hit=L.circleMarker([p.lat,p.lng],{radius:20, stroke:false, fill:true, fillOpacity:0.001, className:"hit"}).addTo(map);
-    var ring=L.circleMarker([p.lat,p.lng],{radius:14, fill:false, weight:1.5, opacity:.32, color:css("--accent"), interactive:false}).addTo(map);
-    var dot=L.circleMarker([p.lat,p.lng],{radius:8, weight:2.5, color:css("--sheet"), fillColor:css("--accent"), fillOpacity:1, interactive:false}).addTo(map);
-    hit._ring=ring; hit._dot=dot; hit._pid=p.id;
-    hit.bindTooltip("",{permanent:true, interactive:true, direction:p.dir,
-      offset:p.dir==="bottom"?[0,17]:[p.dir==="left"?-17:17,0], className:"lbl place", opacity:1});
-    hit.bindPopup("",{closeButton:true, autoPan:true, minWidth:278, maxWidth:300, autoPanPadding:[24,24]});
-    hit.on("click",function(){ lastMarkerClick=Date.now(); select(p.id); });
-    hit.on("mouseover",function(){ if(state.sel!==p.id) paint(hit,false,true); });
-    hit.on("mouseout", function(){ if(state.sel!==p.id) paint(hit,false,false); });
-    var el=hit.getElement();
-    if(el){
-      el.setAttribute("tabindex","0");
-      el.setAttribute("role","button");
-      el.setAttribute("aria-label",p.name);
-      el.dataset.place=p.id;
-    }
-    hit._shown=true;
-    placeMarkers[p.id]=hit;
-    return hit;
+    var m=L.marker([p.lat,p.lng],{icon:pinIcon(p), title:p.name, alt:p.name, riseOnHover:true});
+    m.bindTooltip("",{permanent:true, interactive:true, direction:p.dir,
+      offset:p.dir==="bottom"?[0,16]:[p.dir==="left"?-16:16,0], className:"lbl place", opacity:1});
+    m.bindPopup("",{closeButton:true, minWidth:278, maxWidth:300,
+      autoPanPaddingTopLeft:[16,56], autoPanPaddingBottomRight:popBottom()});
+    // select() owns opening and closing, so a click that toggles the popup on
+    // its own as well would undo whatever select() just did.
+    m.off("click",m._openPopup,m); m.off("keypress",m._onKeyPress,m);
+    m.on("click",function(){ lastMarkerClick=Date.now(); select(p.id); });
+    m.on("keypress",function(e){
+      var k=e.originalEvent&&e.originalEvent.key;
+      if(k==="Enter"||k===" "){ lastMarkerClick=Date.now(); select(p.id); }
+    });
+    // The popup's own close button is a deselect too.
+    m.on("popupclose",function(){ if(state.sel===p.id){ state.sel=null; if(!drawing) draw(); } });
+    // A clustered pin is rebuilt each time it comes back onto the map, which
+    // drops its highlight and leaves its label without the hooks draw() set.
+    m.on("add",function(){ setTimeout(function(){ decorate(p.id); },0); });
+    placeMarkers[p.id]=m;
+    return m;
   }
   PLACES.forEach(addMarker);
+  phone.addEventListener("change",function(){
+    Object.keys(placeMarkers).forEach(function(id){
+      placeMarkers[id].getPopup().options.autoPanPaddingBottomRight=popBottom();
+    });
+    setSheet("peek");
+  });
 
   // clicking the permanent label picks the place too — it doubles the target
   map.getContainer().addEventListener("click",function(e){
@@ -632,75 +643,44 @@ html{-webkit-text-size-adjust:100%}
     return '<button type="button" data-home="'+k+'" aria-pressed="'+(k===state.home)+'">'+esc(h.name)+'</button>';
   }).join("");
 
-  map.on("click",function(){ if(Date.now()-lastMarkerClick<80) return; select(null); });
+  map.on("click",function(){ if(Date.now()-lastMarkerClick<80) return; if(state.sel) select(null); });
   // Below this the place labels are hidden, because they pile into each other.
   // The opening fit is chosen against the same number, so the page never opens
   // in the state where every marker is a nameless dot.
   var LABEL_ZOOM=15.9;
-  function syncZoomClass(){ map.getContainer().classList.toggle("zoomed-out", map.getZoom()<LABEL_ZOOM); }
+  function syncZoomClass(){
+    var el=map.getContainer();
+    el.classList.toggle("zoomed-out", map.getZoom()<LABEL_ZOOM);
+    el.classList.toggle("far", map.getZoom()<14);
+  }
   map.on("zoomend",syncZoomClass);
 
-  // Hidden means off the map, not merely faint: a pin you cannot click but
-  // can still see is the thing that makes a filter feel broken.
-  function showPlace(id,on){
-    var m=placeMarkers[id]; if(!m || m._shown===on) return;
-    m._shown=on;
-    [m,m._ring,m._dot].forEach(function(l){ if(on) l.addTo(map); else map.removeLayer(l); });
+  // ------------------------------------------------------- phone: the sheet ---
+  var panel=document.getElementById("panel"), handle=document.getElementById("handle");
+  var pendingFit=false;
+  function setSheet(s){
+    panel.dataset.sheet=s;
+    handle.setAttribute("aria-expanded",String(s==="open"));
+    if(s==="peek" && pendingFit){ pendingFit=false; setTimeout(function(){ fitTo(rows()); },320); }
   }
+  handle.addEventListener("click",function(){ setSheet(panel.dataset.sheet==="open"?"peek":"open"); });
+  function sheetPad(){ return phone.matches ? (panel.dataset.sheet==="open" ? Math.round(window.innerHeight*.8) : 176) : 0; }
 
-  function drawEmpty(H){
-    gRings.clearLayers(); gLines.clearLayers();
-    document.getElementById("rows").innerHTML=
-      '<tr><td colspan="8" class="c-none" style="padding:22px 14px">Nothing in that category.</td></tr>';
-    document.getElementById("capRing").textContent="no places shown";
+  // ------------------------------------------------------------- filtering ---
+  function norm(s){ return String(s||"").toLowerCase().normalize("NFKD").replace(/[̀-ͯ]/g,""); }
+  function hay(p){ return norm([p.name,p.cat,p.by,p.plus,p.minus,p.addr,p.mrt&&p.mrt.name,p.mrt&&p.mrt.code].join(" ")); }
+  function tokens(){ return norm(state.q).split(/\s+/).filter(Boolean); }
+  function searched(){
+    var t=tokens();
+    return PLACES.filter(function(p){ var h=hay(p); return t.every(function(x){ return h.indexOf(x)!==-1; }); });
   }
-
-  var CATS=(function(){
-    var n={}, order=[];
-    PLACES.forEach(function(p){
-      var c=p.cat||"Uncategorised";
-      if(!(c in n)){ n[c]=0; order.push(c); }
-      n[c]++;
-    });
-    order.sort(function(a,b){ return n[b]-n[a] || a.localeCompare(b); });
-    return order.map(function(c){ return {name:c, n:n[c]}; });
-  })();
-
-  function drawChips(){
-    var box=document.getElementById("chips");
-    box.innerHTML='<button type="button" class="chip" data-cat="" aria-pressed="'+
-      (state.cat?"false":"true")+'">All<b>'+PLACES.length+'</b></button>'+
-      CATS.map(function(c){
-        return '<button type="button" class="chip" data-cat="'+esc(c.name)+'" aria-pressed="'+
-               (state.cat===c.name?"true":"false")+'">'+esc(c.name)+'<b>'+c.n+'</b></button>';
-      }).join("");
-  }
-  document.getElementById("chips").addEventListener("click",function(e){
-    var b=e.target.closest(".chip"); if(!b) return;
-    var want=b.dataset.cat||null;
-    state.cat=(state.cat===want)?null:want;
-    // A selection that the filter just hid would leave a popup open over a
-    // place no longer in the list, so let it go.
-    if(state.sel){
-      var sp=byId(state.sel);
-      if(sp && state.cat && sp.cat!==state.cat) state.sel=null;
-    }
-    drawChips(); draw();
-    document.getElementById("live").textContent=
-      state.cat ? ("Showing "+state.cat+" only.") : "Showing every category.";
-  });
-
-  function paint(m,on,hover){
-    var acc=css("--accent");
-    m._dot.setStyle({color:css("--sheet"), fillColor:acc});
-    m._dot.setRadius(on?10:(hover?9:8));
-    m._ring.setStyle({color:acc, opacity:on?.95:(hover?.7:.32), weight:on?2:1.5});
-    m._ring.setRadius(on?17:(hover?16:14));
-  }
+  function catOk(p){ return !state.cats.size || state.cats.has(catOf(p)); }
+  function topOk(p){ return !state.top || isTop(p); }
+  function filtersOn(){ return !!(state.q.trim() || state.cats.size || state.top); }
 
   function rows(){
     var H=HOMES[state.home];
-    return PLACES.filter(function(p){ return !state.cat || p.cat===state.cat; })
+    return searched().filter(function(p){ return catOk(p) && topOk(p); })
       .map(function(p){
       var d=dist(H,p), b=bearing(H,p);
       return {p:p,d:d,b:b,cp:COMPASS[Math.floor(((b+11.25)%360)/22.5)],
@@ -708,6 +688,36 @@ html{-webkit-text-size-adjust:100%}
     }).sort(function(x,y){ return tripMin(x)-tripMin(y) || x.d-y.d; });
   }
 
+  // Counts on each chip are what you would get by pressing it, given the
+  // search and the other filter - so a chip reading 0 is greyed, not a trap.
+  function drawChips(){
+    var s=searched();
+    var catN={}; s.filter(topOk).forEach(function(p){ var c=catOf(p); catN[c]=(catN[c]||0)+1; });
+    var topN=s.filter(catOk).filter(isTop).length;
+    document.getElementById("chips").innerHTML=
+      '<button type="button" class="chip" data-top="1" aria-pressed="'+state.top+'"'+(topN||state.top?'':' disabled')+
+        ' title="Rated '+TOP.toFixed(1)+' or more">'+
+        '<span class="ico top" style="--s:20px"><svg viewBox="0 0 24 24" aria-hidden="true">'+GLYPH.star+'</svg></span>'+
+        '<span>Top rated</span><span class="n">'+topN+'</span></button>'+
+      cats(PLACES).map(function(c){
+        var n=catN[c]||0, on=state.cats.has(c);
+        return '<button type="button" class="chip" style="--c:'+hue(c)+'" data-cat="'+esc(c)+'" aria-pressed="'+on+'"'+
+               (n||on?'':' disabled')+'>'+ico(c,20)+'<span>'+esc(c)+'</span><span class="n">'+n+'</span></button>';
+      }).join("");
+  }
+  document.getElementById("chips").addEventListener("click",function(e){
+    var b=e.target.closest(".chip"); if(!b || b.disabled) return;
+    if(b.dataset.top) state.top=!state.top;
+    else {
+      var c=b.dataset.cat;
+      if(state.cats.has(c)) state.cats["delete"](c); else state.cats.add(c);
+    }
+    draw(); fitTo(rows());
+    document.getElementById("live").textContent=
+      state.cats.size||state.top ? "Showing "+rows().length+" places." : "Showing every category.";
+  });
+
+  // -------------------------------------------------------------- drawing ---
   function noteHTML(p){
     if(!p.plus && !p.minus) return '<span class="c-none">Not written up yet</span>';
     var h="";
@@ -715,15 +725,51 @@ html{-webkit-text-size-adjust:100%}
     if(p.minus) h+='<span class="mi"><b class="g">&minus;</b> '+esc(p.minus)+'</span>';
     return h;
   }
+  function paint(m,on){
+    var el=m.getElement && m.getElement();
+    if(el && el.classList) el.classList.toggle("is-active",!!on);
+  }
+  function decorate(id){
+    var m=placeMarkers[id]; if(!m) return;
+    paint(m, state.sel===id);
+    var tt=m.getTooltip(), te=tt&&tt.getElement&&tt.getElement();
+    if(te){ te.classList.toggle("on",state.sel===id); te.dataset.place=id; }
+  }
+
+  function drawEmpty(){
+    gRings.clearLayers(); gLines.clearLayers();
+    document.getElementById("list").innerHTML=
+      '<li class="empty"><strong>Nothing matches</strong>Try a shorter search, or switch a category off.</li>';
+    document.getElementById("capRing").textContent="no places shown";
+  }
 
   function draw(){
+    drawing=true;
+    try{ drawAll(); } finally { drawing=false; }
+  }
+  function drawAll(){
     var H=HOMES[state.home], R=rows();
+    drawChips();
 
-    // A filter takes places off the map as well as out of the table, so the
-    // two always agree about what you are looking at.
-    var shown={}; R.forEach(function(row){ shown[row.p.id]=1; });
-    PLACES.forEach(function(p){ showPlace(p.id, !!shown[p.id]); });
-    if(!R.length){ drawEmpty(H); return; }
+    // A filter takes places off the map as well as out of the list, so the
+    // two always agree about what you are looking at. Only the difference
+    // moves: rebuilding the whole cluster would close the card you have open.
+    var want={}, drop=[], add=[];
+    R.forEach(function(row){ want[row.p.id]=1; });
+    Object.keys(onMap).forEach(function(id){
+      if(!want[id]){ if(placeMarkers[id]) drop.push(placeMarkers[id]); delete onMap[id]; }
+    });
+    Object.keys(want).forEach(function(id){ if(!onMap[id]){ add.push(placeMarkers[id]); onMap[id]=1; } });
+    if(drop.length) cluster.removeLayers(drop);
+    if(add.length) cluster.addLayers(add);
+    if(state.sel && !want[state.sel]){ state.sel=null; map.closePopup(); }
+
+    var filt=filtersOn();
+    document.getElementById("clear").hidden=!filt;
+    document.getElementById("count").textContent=
+      R.length+(R.length===1?" place":" places")+(filt?" match":"")+
+      (state.sortKey==="near"?" · nearest first":"");
+    if(!R.length){ drawEmpty(); return; }
 
     // Rings are still geodesic, so their outer edge is the farthest place by
     // distance - which after sorting by travel time is no longer the last row.
@@ -736,7 +782,7 @@ html{-webkit-text-size-adjust:100%}
     for(var r=step;r<=max*1.12;r+=step){
       L.circle([H.lat,H.lng],{radius:r,fill:false,color:inkDim,weight:1,dashArray:"3 4",opacity:.7,interactive:false}).addTo(gRings);
     }
-    document.getElementById("capRing").textContent="rings every "+fmtRing(step);
+    document.getElementById("capRing").textContent="rings every "+fmtRing(step)+" from "+H.name;
 
     // Only the selected place gets a run drawn. One line answers "which one is
     // that, and how far"; twenty-four of them just cover the streets underneath.
@@ -750,22 +796,15 @@ html{-webkit-text-size-adjust:100%}
     R.forEach(function(row){
       var p=row.p, m=placeMarkers[p.id], on=state.sel===p.id;
       m.setTooltipContent(esc(p.short)+(on?"<b>"+fmtM(row.d)+" · "+row.walk+" min walk</b>":""));
-      var tt=m.getTooltip(), te=tt&&tt.getElement&&tt.getElement();
-      if(te){ te.classList.toggle("on",!!on); te.dataset.place=p.id; }
-      // re-assert the focus attributes: Leaflet rebuilds path elements when the
-      // SVG renderer resets, which drops anything set at creation time
-      var pe=m.getElement();
-      if(pe && !pe.dataset.place){
-        pe.setAttribute("tabindex","0"); pe.setAttribute("role","button");
-        pe.setAttribute("aria-label",p.name); pe.dataset.place=p.id;
-      }
-      paint(m,on,false);
+      decorate(p.id);
       m.setPopupContent(
         '<div class="card">'+
           '<div class="card-head">'+
-            '<p class="card-cat">'+esc(p.cat)+
+            '<p class="card-cat">'+ico(catOf(p),18)+esc(catOf(p))+
+              (isTop(p)?'<span class="top-tag">Top</span>':'')+
               (p.by?' <span class="who">'+esc(p.by)+'</span>':'')+'</p>'+
             '<h3 class="card-name">'+esc(p.name)+'</h3>'+
+            (state.me && p.dist!=null ? '<p class="card-me">'+fmtDist(p.dist)+' from you</p>' : '')+
           '</div>'+
           '<div class="card-grid">'+
             '<div class="stat"><span class="stat-k">Rating</span>'+
@@ -800,30 +839,25 @@ html{-webkit-text-size-adjust:100%}
       if(he) he.classList.toggle("on",act);
     });
 
-    var T=R.slice().sort(function(a,b){ return SORTS[state.sortKey](a,b)*state.sortDir; });
-    document.getElementById("rows").innerHTML=T.map(function(row){
+    var T=R.slice().sort(SORTS[state.sortKey]);
+    document.getElementById("list").innerHTML=T.map(function(row){
       var p=row.p, on=state.sel===p.id;
-      return '<tr data-place="'+p.id+'" tabindex="0" aria-selected="'+(on?"true":"false")+'">'+
-        '<td class="first"><span class="c-dist">'+tripMin(row)+' min</span>'+tripLine(row)+'</td>'+
-        '<td class="c-name">'+esc(p.name)+'<span class="c-cat">'+esc(p.cat)+'</span></td>'+
-        '<td class="by">'+(p.by?'<span class="who">'+esc(p.by)+'</span>':'')+'</td>'+
-        '<td><span class="c-rate">'+p.rating.toFixed(1)+'</span>'+stars(p.rating)+'</td>'+
-        '<td>'+priceBar(p.price)+'</td>'+
-        '<td class="c-note">'+noteHTML(p)+'</td>'+
-        '<td><span class="pill '+p.mrt.line+'">'+p.mrt.code+'</span><span class="c-stn">'+esc(p.mrt.name)+' · '+p.mrtW+' min</span></td>'+
-        '<td><a class="go" href="'+gmaps(p)+'" target="_blank" rel="noopener noreferrer" '+
-          'aria-label="Walking directions from your location to '+esc(p.name)+' in Google Maps">Directions &#8599;</a></td>'+
-        '</tr>';
+      return '<li><button type="button" class="item" data-place="'+p.id+'"'+(on?' aria-current="true"':'')+'>'+
+        ico(catOf(p),28)+
+        '<span class="item-body">'+
+          '<span class="item-name">'+esc(p.name)+'</span>'+
+          '<span class="item-meta"><span class="c-rate">'+p.rating.toFixed(1)+'</span>'+stars(p.rating)+priceBar(p.price)+
+            '<span class="pill '+p.mrt.line+'">'+p.mrt.code+'</span>'+esc(p.mrt.name)+' '+p.mrtW+'&prime;</span>'+
+          (p.plus?'<span class="item-note"><b class="g">+</b> '+esc(p.plus)+'</span>':'')+
+          '<span class="item-tag">'+(isTop(p)?'<span class="top-tag">Top</span>':'')+esc(catOf(p))+
+            (p.by?' · '+esc(p.by):'')+
+            (state.me && p.dist!=null?'<span class="dist"> · '+fmtDist(p.dist)+' from you</span>':'')+'</span>'+
+        '</span>'+
+        '<span class="item-time"><span class="c-dist">'+tripMin(row)+' min</span>'+tripLine(row)+'</span>'+
+      '</button></li>';
     }).join("");
 
-    Array.prototype.forEach.call(document.querySelectorAll("#list th[data-sort]"),function(th){
-      var active=th.dataset.sort===state.sortKey;
-      th.setAttribute("aria-sort", active ? (state.sortDir>0?"ascending":"descending") : "none");
-      var car=th.querySelector(".car");
-      if(car) car.innerHTML = (active && state.sortDir<0) ? "&#9660;" : "&#9650;";
-    });
-
-    document.getElementById("thFrom").textContent="From "+H.name;
+    document.getElementById("sort").value=state.sortKey;
     // R, not PLACES: the range below already comes from the filtered set, so
     // counting the unfiltered one made the caption contradict itself - "24
     // places · 4,145 m–4,145 m" over a single row.
@@ -833,6 +867,23 @@ html{-webkit-text-size-adjust:100%}
     Array.prototype.forEach.call(document.querySelectorAll(".switch button"),function(b){
       b.setAttribute("aria-pressed", +b.dataset.home===state.home?"true":"false");
     });
+  }
+
+  // ------------------------------------------------------------- framing ---
+  // Fit the map to what the filter left, clear of the sheet on a phone. With
+  // no filter on, go back to the opening view rather than fitting every place:
+  // one restaurant in Chinatown would otherwise zoom the whole list out to a
+  // smudge.
+  function fitTo(R){
+    if(!R.length) return;
+    if(phone.matches && panel.dataset.sheet==="open"){ pendingFit=true; return; }
+    var framing=state.me && !farAway();
+    if(!filtersOn() && !framing){ openingView(true); return; }
+    var pts=(framing ? R.slice().sort(SORTS.near).slice(0,8) : R).map(function(row){ return [row.p.lat,row.p.lng]; });
+    if(framing) pts.push([state.me.lat,state.me.lng]);
+    if(pts.length===1){ map.setView(pts[0], Math.max(map.getZoom(),16), {animate:!REDUCED}); return; }
+    map.fitBounds(L.latLngBounds(pts),{paddingTopLeft:[32,56], paddingBottomRight:[32,32+sheetPad()],
+                                       maxZoom:16, animate:!REDUCED});
   }
 
   function setHome(k){
@@ -845,29 +896,39 @@ html{-webkit-text-size-adjust:100%}
       state.home=k; draw();
       document.getElementById("live").textContent="Measuring from "+HOMES[k].name+".";
     }
-    recentre(HOMES[k]);
-    if(state.sel) placeMarkers[state.sel].openPopup();
+    var sel=state.sel;
+    recentre(HOMES[k], sel ? function(){ var m=placeMarkers[sel]; if(m && state.sel===sel) m.openPopup(); } : null);
   }
 
   // Anything you pick becomes the thing the map is about: a house you are now
   // measuring from, or a place you are looking at. Put it in the middle. Keep
   // the viewer's zoom - they chose it - but come in to 15 if they are far
-  // enough out that a single building is not a meaningful centre.
-  function recentre(pt){
-    var still=window.matchMedia&&window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-    map.setView([pt.lat,pt.lng], Math.max(map.getZoom(), 15),
-                {animate:!still, duration:.6});
+  // enough out that a single building is not a meaningful centre. At 15 no pin
+  // is clustered any more, so the one picked is on the map to open.
+  function recentre(pt,then){
+    var z=Math.max(map.getZoom(),15), target=L.latLng(pt.lat,pt.lng);
+    if(map.getZoom()===z && map.getCenter().distanceTo(target)<5){ if(then) then(); return; }
+    // Centre first, then open: autoPan has nothing left to do, so the map
+    // does not make a second, contrary move straight after the first.
+    if(then) map.once("moveend",function(){ setTimeout(then,60); });
+    map.setView(target, z, {animate:!REDUCED, duration:.6});
   }
   function select(id){
-    state.sel=(id && state.sel!==id) ? id : null;
+    var next=(id && state.sel!==id) ? id : null;
+    state.sel=next;
+    if(!next){ map.closePopup(); draw(); return; }
     draw();
-    if(state.sel){
-      var p=byId(state.sel);
-      if(p) recentre(p);
-      // Centre first, then open: autoPan has nothing left to do, so the map
-      // does not make a second, contrary move straight after the first.
-      placeMarkers[state.sel].openPopup();
-    }
+    var p=byId(next), m=placeMarkers[next];
+    if(!p || !m) return;
+    pendingFit=false;
+    if(phone.matches) setSheet("peek");
+    var cur=document.querySelector('.item[aria-current="true"]');
+    if(cur && cur.scrollIntoView && !phone.matches) cur.scrollIntoView({block:"nearest"});
+    recentre(p,function(){
+      if(state.sel!==next) return;
+      if(map.hasLayer(m)) m.openPopup();
+      else cluster.zoomToShowLayer(m,function(){ m.openPopup(); });
+    });
   }
   function byId(id){
     for(var i=0;i<PLACES.length;i++){ if(PLACES[i].id===id) return PLACES[i]; }
@@ -878,30 +939,108 @@ html{-webkit-text-size-adjust:100%}
     var b=e.target.closest("button[data-home]"); if(b) setHome(b.dataset.home);
   });
   document.getElementById("list").addEventListener("click",function(e){
-    if(e.target.closest("a.go")) return;              // let the directions link through
-    var th=e.target.closest("th[data-sort]");
-    if(th){
-      var k=th.dataset.sort;
-      if(state.sortKey===k) state.sortDir=-state.sortDir;
-      else { state.sortKey=k; state.sortDir=(k==="rating")?-1:1; }
-      draw();
-      document.getElementById("live").textContent="Sorted by "+k+", "+(state.sortDir>0?"ascending":"descending")+".";
-      return;
-    }
-    var tr=e.target.closest("tr[data-place]"); if(tr) select(tr.dataset.place);
+    var b=e.target.closest("[data-place]"); if(b) select(b.dataset.place);
   });
-  document.getElementById("list").addEventListener("keydown",function(e){
-    if(e.key!=="Enter"&&e.key!==" ") return;
-    if(e.target.closest("a.go")) return;
-    var tr=e.target.closest("tr[data-place]"); if(!tr) return;
-    e.preventDefault(); select(tr.dataset.place);
+  document.getElementById("sort").addEventListener("change",function(e){
+    state.sortKey=e.target.value; draw();
+    document.getElementById("live").textContent="Sorted by "+e.target.options[e.target.selectedIndex].text+".";
+  });
+  var typing=null;
+  document.getElementById("q").addEventListener("input",function(e){
+    state.q=e.target.value;
+    draw();
+    clearTimeout(typing);
+    typing=setTimeout(function(){ fitTo(rows()); },300);
+  });
+  document.getElementById("q").addEventListener("focus",function(){ if(phone.matches) setSheet("open"); });
+  document.getElementById("clear").addEventListener("click",function(){
+    state.q=""; state.cats.clear(); state.top=false; document.getElementById("q").value="";
+    draw(); fitTo(rows());
   });
   document.getElementById("map").addEventListener("keydown",function(e){
     if(e.key!=="Enter"&&e.key!==" ") return;
     var sp=e.target.closest(".hm[data-home]");
-    if(sp){ e.preventDefault(); setHome(sp.dataset.home); return; }
-    var pk=e.target.closest("[data-place]");
-    if(pk){ e.preventDefault(); select(pk.dataset.place); }
+    if(sp){ e.preventDefault(); setHome(sp.dataset.home); }
+  });
+
+  // -------------------------------------------------------------- near me ---
+  // Where you are standing, as a blue dot, with the list sorted nearest first.
+  // Distances from you are straight lines; the minutes stay measured from the
+  // home in the switch, because those are real routes.
+  var nearBtn=document.getElementById("near"), nearNote=document.getElementById("nearNote");
+  var nearOpt=document.querySelector('#sort option[value="near"]');
+  var watchId=null, meMarker=null, meCircle=null, locating=false, sortBeforeNear="time";
+  function fmtDist(m){
+    if(m<1000) return Math.max(10,Math.round(m/10)*10)+" m";
+    return (m/1000).toFixed(m<10000?1:0)+" km";
+  }
+  function farAway(){ return !!state.me && state.nearest>30000; }
+  function updateDistances(){
+    var best=Infinity;
+    PLACES.forEach(function(p){ p.dist=dist(state.me,p); if(p.dist<best) best=p.dist; });
+    state.nearest=best;
+  }
+  function showNote(msg){
+    nearNote.textContent=msg; nearNote.hidden=!msg;
+    if(msg && phone.matches) setSheet("open");
+  }
+  function setNearUi(mode){
+    nearBtn.setAttribute("aria-pressed",String(mode==="on"));
+    nearBtn.disabled=mode==="busy";
+    document.getElementById("nearLabel").textContent=mode==="busy"?"Locating…":"Near me";
+    nearBtn.title=mode==="on"?"Stop sorting by distance from you":"Sort by distance from where you are";
+    if(nearOpt) nearOpt.hidden=mode!=="on";
+  }
+  function drawMe(){
+    var ll=[state.me.lat,state.me.lng];
+    if(!meMarker){
+      meCircle=L.circle(ll,{radius:state.me.acc, className:"me-acc", interactive:false}).addTo(map);
+      meMarker=L.marker(ll,{icon:L.divIcon({className:"me-wrap", html:'<span class="me-dot"></span>', iconSize:[22,22]}),
+                            interactive:false, keyboard:false, zIndexOffset:2000}).addTo(map);
+    } else {
+      meMarker.setLatLng(ll); meCircle.setLatLng(ll).setRadius(state.me.acc);
+    }
+  }
+  function onFix(pos){
+    var first=!state.me;
+    state.me={lat:pos.coords.latitude, lng:pos.coords.longitude, acc:Math.min(pos.coords.accuracy||50,2000)};
+    drawMe();
+    updateDistances();
+    if(!first) return;                // later fixes move the dot; the list keeps its order until asked
+    locating=false; setNearUi("on");
+    sortBeforeNear=state.sortKey; state.sortKey="near";
+    showNote(farAway() ? "You are "+fmtDist(state.nearest)+" from the nearest place here, so nothing is close yet. Distances are still shown." : "");
+    draw(); fitTo(rows());
+  }
+  function onFail(err){
+    if(state.me) return;              // ignore a brief signal drop once there is a fix
+    stopWatch(); locating=false; setNearUi("idle");
+    showNote(err.code===1
+      ? "Location is blocked for this page. Allow it in your browser's site settings, then press Near me again. If this opened inside another app, open it in Safari or Chrome instead."
+      : "Could not work out where you are. Try again, ideally outdoors or with Wi-Fi on.");
+  }
+  function startWatch(){
+    if(watchId!=null) return;
+    watchId=navigator.geolocation.watchPosition(onFix,onFail,{enableHighAccuracy:true, maximumAge:5000, timeout:20000});
+  }
+  function stopWatch(){ if(watchId!=null){ navigator.geolocation.clearWatch(watchId); watchId=null; } }
+  function nearOff(){
+    stopWatch(); locating=false;
+    if(meMarker){ map.removeLayer(meMarker); map.removeLayer(meCircle); meMarker=meCircle=null; }
+    state.me=null; state.nearest=null;
+    PLACES.forEach(function(p){ delete p.dist; });
+    if(state.sortKey==="near") state.sortKey=sortBeforeNear;
+    setNearUi("idle"); showNote("");
+    draw();
+  }
+  nearBtn.addEventListener("click",function(){
+    if(state.me || locating){ nearOff(); return; }
+    if(!navigator.geolocation || !window.isSecureContext){ showNote("Finding you needs a secure (https) page and a browser that supports it."); return; }
+    locating=true; setNearUi("busy"); showNote(""); startWatch();
+  });
+  // the live dot pauses while the page is hidden, to save the battery
+  document.addEventListener("visibilitychange",function(){
+    if(document.hidden) stopWatch(); else if(state.me) startWatch();
   });
 
 
@@ -1071,12 +1210,14 @@ html{-webkit-text-size-adjust:100%}
 
       Object.keys(placeMarkers).forEach(function(id){
         if(!PLACES.some(function(p){ return p.id===id; })){
-          var m=placeMarkers[id];
-          map.removeLayer(m); map.removeLayer(m._ring); map.removeLayer(m._dot);
-          delete placeMarkers[id];
+          cluster.removeLayer(placeMarkers[id]);
+          delete placeMarkers[id]; delete onMap[id];
         }
       });
+      // A changed category or rating changes the pin's colour, glyph or star.
+      kept.forEach(function(p){ placeMarkers[p.id].setIcon(pinIcon(p)); });
       added.forEach(addMarker);
+      if(state.me) updateDistances();
       if(state.sel&&!placeMarkers[state.sel]) state.sel=null;
       draw();
 
@@ -1115,16 +1256,12 @@ html{-webkit-text-size-adjust:100%}
 
   if(pullBtn) pullBtn.addEventListener("click",pull);
 
+
   var mq=window.matchMedia("(prefers-color-scheme: dark)");
   (mq.addEventListener?mq.addEventListener.bind(mq,"change"):mq.addListener.bind(mq))(function(){ setTiles(); draw(); });
   new MutationObserver(function(){ setTiles(); draw(); })
     .observe(document.documentElement,{attributes:true,attributeFilter:["data-theme"]});
 
-  // Open on the neighbourhood, not on every place in the list. Once the sheet
-  // grew a restaurant in Chinatown, fitting to all of them zoomed out to half
-  // the island and left the streets this map is about as a smudge. The
-  // neighbourhood is the places served by the stations the map actually draws;
-  // anything further out still has its pin, and its row still flies you there.
   // Open on as much of the neighbourhood as can actually be read: the doors,
   // then the places nearest them, stopping at the last one that still leaves
   // the view above LABEL_ZOOM. Anything further out keeps its pin and its row,
@@ -1139,36 +1276,40 @@ html{-webkit-text-size-adjust:100%}
   function fromDoor(p){
     return HOMES.reduce(function(m,h){ return Math.min(m,dist(h,p)); },Infinity);
   }
-  var opening=HOMES.map(function(h){ return [h.lat,h.lng]; });
-  PLACES.slice().sort(function(a,b){ return fromDoor(a)-fromDoor(b); })
-    .every(function(p){
-      var trial=opening.concat([[p.lat,p.lng]]);
-      if(map.getBoundsZoom(L.latLngBounds(trial).pad(.06))<LABEL_ZOOM) return false;
-      opening=trial; return true;
-    });
-  if(map.getBoundsZoom(L.latLngBounds(opening).pad(.06))<LABEL_ZOOM){
-    // A phone is too narrow to hold even the three doors and still leave a
-    // name readable. Open on the door being measured from rather than on a
-    // neighbourhood of anonymous dots.
-    var first=HOMES[state.home]||HOMES[0];
-    map.setView([first.lat,first.lng], 16);
-  } else {
-    map.fitBounds(L.latLngBounds(opening).pad(.06),{maxZoom:16});
+  function openingView(animate){
+    var opening=HOMES.map(function(h){ return [h.lat,h.lng]; });
+    PLACES.slice().sort(function(a,b){ return fromDoor(a)-fromDoor(b); })
+      .every(function(p){
+        var trial=opening.concat([[p.lat,p.lng]]);
+        if(map.getBoundsZoom(L.latLngBounds(trial).pad(.06))<LABEL_ZOOM) return false;
+        opening=trial; return true;
+      });
+    var opt={animate:!!animate && !REDUCED};
+    if(map.getBoundsZoom(L.latLngBounds(opening).pad(.06))<LABEL_ZOOM){
+      // A phone is too narrow to hold even the three doors and still leave a
+      // name readable. Open on the door being measured from rather than on a
+      // neighbourhood of anonymous dots.
+      var first=HOMES[state.home]||HOMES[0];
+      map.setView([first.lat,first.lng], 16, opt);
+    } else {
+      opt.maxZoom=16; opt.paddingBottomRight=[0,sheetPad()];
+      map.fitBounds(L.latLngBounds(opening).pad(.06),opt);
+    }
   }
+  openingView(false);
   syncZoomClass();
-  drawChips();
   draw();
+  window.addEventListener("load",function(){ map.invalidateSize(); });
   }catch(err){
-    // A blank map and an empty table are indistinguishable from "no data".
+    // A blank map and an empty list are indistinguishable from "no data".
     // Say what happened instead, so a bad refresh is obvious.
     if(window.console) console.error(err);
     var box=document.getElementById("map");
     if(box) box.innerHTML='<p style="font-family:var(--mono);font-size:12px;'+
       'color:var(--ink-2);padding:24px;line-height:1.6">This map failed to draw: '+
       String(err&&err.message||err)+'<br>Re-run <b>./update.sh</b> and check the output.</p>';
-    var rows=document.getElementById("rows");
-    if(rows) rows.innerHTML='<tr><td colspan="8" style="font-family:var(--mono);'+
-      'font-size:12px;color:var(--ink-2)">No rows: '+String(err&&err.message||err)+'</td></tr>';
+    var list=document.getElementById("list");
+    if(list) list.innerHTML='<li class="empty">No places: '+String(err&&err.message||err)+'</li>';
   }
 })();
 </script>

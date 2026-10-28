@@ -23,7 +23,7 @@ how it scored, how long it takes to get there, and which MRT station actually se
 
 <br>
 
-<a href="https://fang89.github.io/Singapore-food-recommendation/"><picture><source media="(prefers-color-scheme: dark)" srcset="docs/screenshots/hero-dark.png"><img src="docs/screenshots/hero-light.png" alt="The food map: three homes, rings, and every place pinned around Boon Keng" width="860"></picture></a>
+<a href="https://fang89.github.io/Singapore-food-recommendation/"><picture><source media="(prefers-color-scheme: dark)" srcset="docs/screenshots/hero-dark.png"><img src="docs/screenshots/hero-light.png" alt="The food map: the list on the left, every place pinned around Boon Keng in its category colour" width="860"></picture></a>
 
 </div>
 
@@ -41,7 +41,9 @@ the way out the door:
 | ⏱️ | **Minutes, not metres** | OneMap routes every home-to-place trip on foot *and* by public transport, and shows the quicker one. |
 | 🚇 | **The station that really serves it** | Nearest MRT from the whole network, in its real line colour, with the walk from the exit. |
 | ⭐ | **Rated and priced** | Rating, price band, the plus and the minus, and who recommended it. |
-| 🏷️ | **Filter by craving** | Category chips come straight from the sheet. Add a new category there and a chip appears here. |
+| 🏷️ | **Filter by craving** | Category chips come straight from the sheet, each with its own pin colour and glyph. Add a new category there and a chip appears here. |
+| 🔎 | **Search** | Name, dish, plus, minus, address or station. The map keeps only what matches and fits itself to it. |
+| 📍 | **Near me** | A blue dot where you are standing, and the list re-sorted nearest first. |
 | 🔄 | **Pull from sheet** | Added a row a minute ago? Press the button and it is geocoded and pinned in your browser on the spot. |
 
 ## 🗺️ Click a pin, get the card
@@ -53,9 +55,11 @@ and a Google Maps walking-directions link that routes from wherever you are stan
 
 ## 📋 The list
 
-Sort by travel time, rating, price or walk to the MRT. Click a row and the map flies there.
+Beside the map on a computer, a sheet you pull up from the bottom on a phone. Sort by
+travel time, rating, price, walk to the MRT or who recommended it. Click a row and the
+map flies there and opens the card.
 
-<p align="center"><a href="https://fang89.github.io/Singapore-food-recommendation/"><picture><source media="(prefers-color-scheme: dark)" srcset="docs/screenshots/list-dark.png"><img src="docs/screenshots/list-light.png" alt="The sortable list with category chips, ratings, price bands and MRT pills" width="760"></picture></a></p>
+<p align="center"><a href="https://fang89.github.io/Singapore-food-recommendation/"><picture><source media="(prefers-color-scheme: dark)" srcset="docs/screenshots/list-dark.png"><img src="docs/screenshots/list-light.png" alt="On a phone: the map with the sheet lowered, and the sheet pulled up to show the list" width="760"></picture></a></p>
 
 > [!NOTE]
 > **Privacy by design.** The homes are geocoded from postal codes at build time, but only
@@ -149,10 +153,11 @@ The basemap is not inlined — it comes live from OneMap at view time.
 reordered columns, the self-closing cell that once made a blank Minus swallow the
 Rating beside it, the postal column, and ids that must not collide. It is the
 half `smoke.py` cannot reach: every bug this file has had was invisible from the
-page, because the map still drew and the table still filled.
+page, because the map still drew and the list still filled.
 
 **`build/smoke.py`** then runs the built page's script against a stubbed Leaflet
-and DOM, and fails if the map never got a view, the table body never got written,
+and DOM, and fails if the map never got a view, the list never got written, a
+category filter or a search leaves the wrong pins on the map,
 or the **Pull from sheet** button cannot complete a round trip against a canned
 sheet and geocoder. A syntax check passes happily on code that throws the moment it runs;
 this catches the blank-map case, which is otherwise indistinguishable from
@@ -202,10 +207,10 @@ Delete it to refetch — after a new line opens, say.
 
 ### How it's built
 
-One `index.html` with Leaflet and the data inlined. The basemap and the fonts
+One `index.html` with Leaflet, Leaflet.markercluster and the data inlined. The basemap and the fonts
 are the only things fetched at runtime.
 
-- **Leaflet** is vendored into `vendor/`.
+- **Leaflet** and **Leaflet.markercluster** are vendored into `vendor/`.
 - **The basemap is live**, from OneMap (Grey by day, Night in dark mode), which
   needs no key. CARTO served it until October 2026, when it began stamping
   "API key required" across every tile. Before that it was baked
@@ -217,7 +222,7 @@ are the only things fetched at runtime.
   and the page went from 3.03 MB to 0.22 MB.
 - **Two station lists, on purpose.** `data/mrt.json` is the handful of stations
   drawn on the map — the neighbourhood. `data/stations.json` is the whole MRT
-  network from OneMap, and it is what answers "nearest MRT" in the table. They
+  network from OneMap, and it is what answers "nearest MRT" in the list. They
   used to be one list, which was fine until the sheet grew a restaurant in
   Chinatown and the page confidently called it a 41-minute walk from Farrer Park.
 - **The map opens on as much as can be read.** It takes the doors, then the
@@ -232,8 +237,15 @@ are the only things fetched at runtime.
   one row pulled the opening view a zoom level out, past the label threshold, and
   the page opened with twenty-five nameless markers.
 - **Category and Recommended by come from the sheet.** Category drives the filter
-  chips above the list; adding a new one to the sheet adds a chip, with nothing
-  to edit here. Recommended by is its own sortable column.
+  chips above the list and the colour and glyph of each pin; adding a new one to
+  the sheet adds a chip, with nothing to edit here. The glyph is picked from what
+  the name sounds like (a cup for a cafe, a mug for beer, chopsticks for Chinese
+  or Japanese, a bowl for everything else); colours go out biggest category first.
+  Recommended by is one of the sort orders.
+- **Pins cluster when they crowd.** Out past zoom 15, pins close to each other
+  merge into a counted bubble ([Leaflet.markercluster](https://github.com/Leaflet/Leaflet.markercluster),
+  vendored like Leaflet); click it to zoom in. A gold star marks anything rated
+  4.5 or more, and the **Top rated** chip filters to just those.
 - **Both themes ship.** The tile layer swaps with the viewer's light/dark setting.
 - **It is a real HTML document** — doctype, `<head>`, and a `width=device-width`
   viewport. It shipped for a while as a bare fragment, because the Artifact host
@@ -282,26 +294,18 @@ weekday midday (`route_when` in `config.json`) rather than for the moment of
 the build, so the same page does not report different numbers each time it is
 rebuilt.
 
-### Moving around the map
+### Layout and moving around the map
 
-The map is a tall panel in the middle of a page that scrolls, so it must not
-swallow a scroll meant for the page. It takes the two gestures that say
-unambiguously "I mean the map", which are the ones Google Maps already uses:
+The layout follows [Taiwan Food Map](https://timothypix77.github.io/taiwan-food-map/):
+the map fills the window and the list sits beside it, so nothing else on the page
+scrolls and the map takes every gesture as its own — wheel or pinch to zoom, drag
+to pan. On a phone (760px and narrower) the list becomes a bottom sheet over a
+full-screen map: lowered, it shows the search, **Near me** and the category chips;
+tap the handle on top to pull it up for the list. Picking a place lowers it again, so the card is not
+hidden behind it.
 
-| | zoom | pan |
-|---|---|---|
-| mouse | hold **⌘**/**Ctrl** and scroll, or the **+ −** buttons, or double-click | drag |
-| trackpad | pinch | two-finger drag with ⌘, or drag |
-| phone | pinch with two fingers | drag with two fingers |
-
-A plain wheel, or one finger on a phone, scrolls the page — and the map says so
-in a pill for a second, rather than just ignoring you. Once you have clicked the
-map, a plain wheel zooms it too: by then the map is plainly what you are using.
-
-On a touch screen Leaflet's dragging handler is switched off at load. That is
-what leaves `touch-action` at `pan-x pan-y`, which is what lets the browser keep
-the one-finger scroll for itself. It has to be decided before the first gesture,
-because `touch-action` is read when a gesture begins.
+A filter or a search refits the map to what is left. Clearing every filter goes
+back to the opening view rather than fitting all the places, for the reason above.
 
 ### Caveats
 

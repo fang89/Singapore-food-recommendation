@@ -60,14 +60,15 @@ Object.defineProperty(El.prototype,"textContent",{ get:function(){return ""}, se
 
 var __els={};
 var document={
-  documentElement:new El("root"),
+  documentElement:new El("root"), hidden:false,
+  addEventListener:function(){},
   getElementById:function(id){ return __els[id] || (__els[id]=new El(id)); },
   querySelector:function(){ return new El("sel"); },
   querySelectorAll:function(){ return []; },
   createElement:function(){ return new El("new"); }
 };
 var window={
-  console:{error:function(){}, log:function(){}},
+  console:{error:function(){}, log:function(){}}, addEventListener:function(){}, innerHeight:800,
   matchMedia:function(){ return {matches:false, addEventListener:function(){}, addListener:function(){}}; }
 };
 window.window=window;
@@ -99,6 +100,24 @@ Layer.prototype.getElement=function(){ return new El("path"); };
 Layer.prototype.clearLayers=function(){ return this; };
 Layer.prototype.bringToBack=function(){ return this; };
 Layer.prototype.addLayer=function(){ return this; };
+Layer.prototype.removeLayer=function(){ return this; };
+Layer.prototype.setIcon=function(){ note("setIcon"); return this; };
+Layer.prototype.setLatLng=function(){ return this; };
+Layer.prototype.getPopup=function(){ return {options:{}}; };
+
+// The cluster group keeps the set it was handed, so the checks can see which
+// places a filter left on the map.
+function Cluster(){ note("markerClusterGroup"); this.held=[]; }
+Cluster.prototype=Object.create(Layer.prototype);
+Cluster.prototype.addLayers=function(ms){ note("cluster:add"); this.held=this.held.concat(ms); return this; };
+Cluster.prototype.removeLayers=function(ms){
+  note("cluster:remove");
+  this.held=this.held.filter(function(m){ return ms.indexOf(m)<0; }); return this; };
+Cluster.prototype.removeLayer=function(m){ return this.removeLayers([m]); };
+Cluster.prototype.clearLayers=function(){ this.held=[]; return this; };
+Cluster.prototype.hasLayer=function(m){ return this.held.indexOf(m)>=0; };
+Cluster.prototype.zoomToShowLayer=function(m,fn){ fn(); };
+var __cluster=null;
 
 function Bounds(pts){ this.pts=pts||[]; }
 Bounds.prototype.pad=function(){ return this; };
@@ -112,7 +131,7 @@ Bounds.prototype.span=function(){
                   Math.max.apply(null,lo)-Math.min.apply(null,lo));
 };
 
-var __mapc=new El("mapc"), __zoom=16;
+var __mapc=new El("mapc"), __zoom=16, __mapOpts=null;
 var L={
   latLngBounds:function(pts){ note("latLngBounds"); return new Bounds(pts); },
   layerGroup:function(){ return new Layer("layerGroup"); },
@@ -121,11 +140,20 @@ var L={
   circle:function(){ return new Layer("circle"); },
   polyline:function(){ return new Layer("polyline"); },
   divIcon:function(){ return {}; },
+  latLng:function(a,b){ return {lat:a, lng:b}; },
+  control:{zoom:function(){ return new Layer("zoomControl"); }},
+  markerClusterGroup:function(){ return (__cluster=new Cluster()); },
   tooltip:function(){ return new Layer("tooltip"); },
-  map:function(){
-    note("map");
+  map:function(id,opts){
+    note("map"); __mapOpts=opts||{};
     return {
       on:function(){}, off:function(){},
+      // No animation here, so a move has already ended by the time anyone
+      // waits for it.
+      once:function(ev,fn){ if(ev==="moveend") fn(); },
+      getCenter:function(){ return {distanceTo:function(){ return 1e9; }}; },
+      closePopup:function(){ note("closePopup"); },
+      hasLayer:function(){ return true; },
       // One container, not a fresh stub per call - the checks below have to
       // reach the very listeners the page attached.
       getContainer:function(){ return __mapc; },
@@ -246,32 +274,35 @@ if(STATIONS.length<100)
 })();
 if(!__calls["attrPrefix"]) throw new Error("the attribution prefix was left at Leaflet's default, which carries the flag");
 
-// Zoom gestures. A plain wheel has to fall through to the page - the map is a
-// tall panel mid-page, and a map that eats the scroll strands the reader on it.
-function __wheel(mod){
-  var swallowed=false;
-  __mapc.fire("wheel",{ctrlKey:mod, metaKey:false, deltaY:-300, deltaMode:0,
-                       preventDefault:function(){ swallowed=true; }});
-  return swallowed;
-}
-__calls["setZoomAround"]=0;
-if(__wheel(false)) throw new Error("a plain wheel over the map was swallowed - the page can no longer be scrolled past the map");
-if(__calls["setZoomAround"]) throw new Error("a plain wheel zoomed the map, so scrolling the page over it is impossible");
-if(!__wheel(true)) throw new Error("Cmd/Ctrl + wheel was not taken by the map, so the browser will zoom the whole page instead");
-if(!__calls["setZoomAround"]) throw new Error("Cmd/Ctrl + wheel did not zoom the map");
-var __before=__zoom;
-__wheel(true); __wheel(true);
-if(__zoom<=__before) throw new Error("wheeling up did not zoom in");
-// Clicking the map is consent: from then on the bare wheel zooms it.
-__mapc.fire("click");
-__calls["setZoomAround"]=0;
-if(!__wheel(false) || !__calls["setZoomAround"])
-  throw new Error("after clicking the map, a plain wheel still does not zoom it");
-if(__calls["drag:off"]) throw new Error("dragging was disabled on a fine pointer - a mouse must still be able to pan");
-if(!__calls["fitBounds"]) throw new Error("fitBounds never ran - the page would open blank");
-if(!__calls["html:rows"]) throw new Error("the table body was never written - the list would be empty");
+// The map fills the window now and nothing else on the page scrolls, so the
+// wheel belongs to it. Turning scrollWheelZoom off again would leave a
+// full-screen map that a mouse cannot zoom.
+if(__mapOpts.scrollWheelZoom===false)
+  throw new Error("scrollWheelZoom is off - the full-window map could not be zoomed with a mouse");
+if(!__calls["fitBounds"] && !__calls["setView"]) throw new Error("the map was never given a view - the page would open blank");
+if(!__calls["html:list"]) throw new Error("the list was never written - the panel would be empty");
+if(!__calls["html:chips"]) throw new Error("the category chips were never written");
 if(!__calls["html:switch"]) throw new Error("the datum switch was never written");
-if(!__calls["circleMarker"]) throw new Error("no place markers were created");
+if(!__cluster) throw new Error("no cluster group was created");
+if(__cluster.held.length!==PLACES.length)
+  throw new Error(__cluster.held.length+" of "+PLACES.length+" places reached the map with no filter on");
+
+// A category filter must take the other places off the map as well as out of
+// the list, and clearing it must put every one of them back.
+(function(){
+  var c=cats(PLACES), pick=c[c.length-1];
+  var want=PLACES.filter(function(p){ return catOf(p)===pick; }).length;
+  state.cats.add(pick); draw();
+  if(__cluster.held.length!==want)
+    throw new Error("filtering to "+pick+" left "+__cluster.held.length+" pins on the map, not "+want);
+  state.cats.clear(); draw();
+  if(__cluster.held.length!==PLACES.length)
+    throw new Error("clearing the filter brought back "+__cluster.held.length+" of "+PLACES.length+" pins");
+  // A search that matches nothing must empty the map, not leave stale pins.
+  state.q="zzzz-no-such-place"; draw();
+  if(__cluster.held.length) throw new Error("a search with no matches left "+__cluster.held.length+" pins up");
+  state.q=""; draw();
+})();
 if(!__calls["tileLayer"]) throw new Error("no basemap layer was added");
 
 // Selecting a place must recentre on it, the same as switching datum does.
@@ -305,15 +336,17 @@ if(HOMES.length>1){
 }
 
 // The "Pull from sheet" button must survive a whole round trip: fetch the CSV,
-// parse it, geocode the rows this build has never seen, redraw the table.
-var built = __calls["html:rows"];
+// parse it, geocode the rows this build has never seen, redraw the list.
+var built = __calls["html:list"];
 __els["pull"].click();
 if(!__calls["fetch:sheet"])
   throw new Error("Pull from sheet never fetched the sheet");
 if(!__calls["fetch:onemap"])
   throw new Error("Pull from sheet never geocoded the rows it did not recognise");
-if(__calls["html:rows"] <= built)
-  throw new Error("Pull from sheet ran but never redrew the table");
+if(__calls["html:list"] <= built)
+  throw new Error("Pull from sheet ran but never redrew the list");
+if(__cluster.held.length!==PLACES.length)
+  throw new Error("after a pull "+__cluster.held.length+" pins are on the map for "+PLACES.length+" places");
 var said = __els["pullnote"]._html;
 if(/Could not pull/.test(said))
   throw new Error("Pull from sheet failed: " + said);
@@ -348,7 +381,7 @@ if(pulled["Rating In Minus"].rating!==0)
 if(pulled["Rating In Minus"].minus!=="3.5")
   throw new Error("the Minus column was rewritten behind the sheet's back");
 
-"ok " + __calls["circleMarker"] + " markers, " + __calls["circle"] + " rings, " +
+"ok " + __calls["marker"] + " markers, " + __calls["circle"] + " rings, " +
   HOMES.length + " homes, pull ok";
 """
 

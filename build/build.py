@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Build index.html: inline Leaflet and the data into one file.
 
-Leaflet's CSS and JS are vendored and inlined, and data/*.json is compiled in,
+Leaflet and Leaflet.markercluster are vendored and inlined, and data/*.json is compiled in,
 so the page is one file. The basemap is not: tiles come live from OneMap, which
 GitHub Pages is perfectly able to reach.
 
@@ -29,6 +29,8 @@ def main():
     css = open(os.path.join(ROOT, "vendor", "leaflet.css")).read()
     css = css.replace("url(images/", "url(data:,#")   # default marker icons are unused
     js = open(os.path.join(ROOT, "vendor", "leaflet.js")).read()
+    cluster_css = open(os.path.join(ROOT, "vendor", "MarkerCluster.css")).read()
+    cluster_js = open(os.path.join(ROOT, "vendor", "leaflet.markercluster.js")).read()
 
     # Only what the page needs at runtime. The sheet id and the FOOD tab's gid
     # go in so the published page can re-read the sheet itself; the postal-code
@@ -39,6 +41,8 @@ def main():
     subs = {
         "/*__LEAFLET_CSS__*/": css,
         "/*__LEAFLET_JS__*/":  js,
+        "/*__CLUSTER_CSS__*/": cluster_css,
+        "/*__CLUSTER_JS__*/":  cluster_js,
         "/*__CONFIG__*/":      json.dumps(runtime, separators=(",", ":")),
         "/*__HOMES__*/":       json.dumps(load("homes.json"),  separators=(",", ":")),
         "/*__MRT__*/":         json.dumps(load("mrt.json"),    separators=(",", ":")),
