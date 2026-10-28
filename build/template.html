@@ -8,172 +8,154 @@
 <title>Food Recommendation</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;600;700;800&family=IBM+Plex+Mono:wght@400;500;600&family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;1,6..72,400&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600..700&family=DM+Sans:opsz,wght@9..40,400..700&display=swap">
 
 <style>/*__LEAFLET_CSS__*/</style>
 <style>/*__CLUSTER_CSS__*/</style>
 
 <style>
 :root{
-  --paper:#E7ECEF; --sheet:#F8FAFB; --sheet-2:#EFF3F5;
-  --ink:#131C24; --ink-2:#5A6B77; --ink-3:#8095A2;
-  --rule:#C3CED5; --rule-soft:#D8E0E5;
-  --accent:#A82F26; --accent-ink:#8E271F; --accent-wash:rgba(168,47,38,.07); --on-accent:#FFF7F5;
-  --halo:rgba(248,250,251,.93);
+  --paper:#EEF2F3; --sheet:#FBFCFC; --field:#EEF2F3;
+  --ink:#16232B; --ink-2:#56666F; --ink-3:#8A989F;
+  --line:#DCE3E6; --line-2:#E8EDEF;
+  --accent:#C8321F; --accent-ink:#B02A19; --accent-wash:#FBEDEA; --on-accent:#FFFFFF;
+  --halo:rgba(251,252,252,.94);
   --ne:#9E28B5; --dt:#005EC4; --ew:#00803A;
   --ns:#C6301A; --cc:#D08700; --te:#8A5525;
-  --shadow:0 1px 2px rgba(19,28,36,.05), 0 8px 24px -12px rgba(19,28,36,.18);
-  --drop:rgba(19,28,36,.22);
+  --shadow:rgba(22,35,43,.16);
   /* One colour per category, handed out biggest category first. */
-  --c1:#C2410C; --c2:#1D6FB8; --c3:#2B8A3E; --c4:#8E3BB0; --c5:#C77700;
-  --c6:#0B7F8C; --c7:#C2255C; --c8:#5F3DC4; --c9:#5C7F0F; --c10:#55606A;
-  --glyph:#FFFFFF; --gold:#F2B705; --on-gold:#3A2A00; --me:#2B7BF5;
-  --display:"Archivo",-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
-  --body:"Newsreader",Georgia,"Times New Roman",serif;
-  --mono:"IBM Plex Mono",ui-monospace,"SF Mono",Menlo,monospace;
+  --c1:#E0522F; --c2:#2F7FD0; --c3:#2E9A55; --c4:#9C4DCC; --c5:#D98A0B;
+  --c6:#13919E; --c7:#D6386E; --c8:#6650D6; --c9:#6A9A16; --c10:#64727A;
+  --glyph:#FFFFFF; --gold:#F5B700; --on-gold:#3A2A00; --me:#2B7BF5;
+  --tile-filter:saturate(.45) contrast(.96) brightness(1.03);
+  --display:"Bricolage Grotesque","DM Sans",-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+  --body:"DM Sans",-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
 }
 @media (prefers-color-scheme:dark){
   :root:not([data-theme="light"]){
-    --paper:#0E1418; --sheet:#151E24; --sheet-2:#111A20;
-    --ink:#E2E9ED; --ink-2:#8DA1AD; --ink-3:#6B7F8B;
-    --rule:#27333B; --rule-soft:#1E2830;
-    --accent:#E4726A; --accent-ink:#F0938C; --accent-wash:rgba(228,114,106,.10); --on-accent:#14191C;
-    --halo:rgba(21,30,36,.93);
+    --paper:#0F1B21; --sheet:#132128; --field:#1B2B33;
+    --ink:#E4ECEF; --ink-2:#98A9B1; --ink-3:#6E8089;
+    --line:#26363E; --line-2:#1E2D34;
+    --accent:#FF6B52; --accent-ink:#FF8A75; --accent-wash:rgba(255,107,82,.12); --on-accent:#1A0B08;
+    --halo:rgba(19,33,40,.94);
     --ne:#C462D6; --dt:#4D93E8; --ew:#3FBE74;
     --ns:#EF6A54; --cc:#E8A93A; --te:#C08A55;
-    --shadow:0 1px 2px rgba(0,0,0,.4), 0 8px 24px -12px rgba(0,0,0,.6);
-    --drop:rgba(0,0,0,.55);
-    --c1:#FF8F5A; --c2:#5AAEF5; --c3:#5CCB74; --c4:#CC85EE; --c5:#F5B53D;
-    --c6:#3CC4D2; --c7:#F27AA2; --c8:#9F8CF5; --c9:#A3CC4A; --c10:#A3AEB8;
-    --glyph:#0E1418; --me:#6AA6FF;
+    --shadow:rgba(0,0,0,.5);
+    --c1:#FF8A63; --c2:#62A8F0; --c3:#5CC97E; --c4:#C68BEB; --c5:#F2B544;
+    --c6:#45C3CF; --c7:#F27DA4; --c8:#9E8DF2; --c9:#A6CC52; --c10:#A3AFB6;
+    --glyph:#0F1B21; --me:#6AA6FF;
+    --tile-filter:saturate(.35) brightness(.9) contrast(.92);
   }
 }
 :root[data-theme="dark"]{
-  --paper:#0E1418; --sheet:#151E24; --sheet-2:#111A20;
-  --ink:#E2E9ED; --ink-2:#8DA1AD; --ink-3:#6B7F8B;
-  --rule:#27333B; --rule-soft:#1E2830;
-  --accent:#E4726A; --accent-ink:#F0938C; --accent-wash:rgba(228,114,106,.10); --on-accent:#14191C;
-  --halo:rgba(21,30,36,.93);
+  --paper:#0F1B21; --sheet:#132128; --field:#1B2B33;
+  --ink:#E4ECEF; --ink-2:#98A9B1; --ink-3:#6E8089;
+  --line:#26363E; --line-2:#1E2D34;
+  --accent:#FF6B52; --accent-ink:#FF8A75; --accent-wash:rgba(255,107,82,.12); --on-accent:#1A0B08;
+  --halo:rgba(19,33,40,.94);
   --ne:#C462D6; --dt:#4D93E8; --ew:#3FBE74;
   --ns:#EF6A54; --cc:#E8A93A; --te:#C08A55;
-  --shadow:0 1px 2px rgba(0,0,0,.4), 0 8px 24px -12px rgba(0,0,0,.6);
-  --drop:rgba(0,0,0,.55);
-  --c1:#FF8F5A; --c2:#5AAEF5; --c3:#5CCB74; --c4:#CC85EE; --c5:#F5B53D;
-  --c6:#3CC4D2; --c7:#F27AA2; --c8:#9F8CF5; --c9:#A3CC4A; --c10:#A3AEB8;
-  --glyph:#0E1418; --me:#6AA6FF;
+  --shadow:rgba(0,0,0,.5);
+  --c1:#FF8A63; --c2:#62A8F0; --c3:#5CC97E; --c4:#C68BEB; --c5:#F2B544;
+  --c6:#45C3CF; --c7:#F27DA4; --c8:#9E8DF2; --c9:#A6CC52; --c10:#A3AFB6;
+  --glyph:#0F1B21; --me:#6AA6FF;
+  --tile-filter:saturate(.35) brightness(.9) contrast(.92);
 }
 
 *{box-sizing:border-box}
 html{-webkit-text-size-adjust:100%}
 html,body{height:100%}
-body{margin:0; background:var(--paper); color:var(--ink); font-family:var(--body); font-size:16px; line-height:1.5; -webkit-font-smoothing:antialiased}
+body{margin:0; background:var(--paper); color:var(--ink); font:14px/1.45 var(--body); -webkit-font-smoothing:antialiased}
 button,input,select{font:inherit; color:inherit}
 button{cursor:pointer}
 [hidden]{display:none!important}
+:focus-visible{outline:2px solid var(--accent); outline-offset:2px}
 
 /* ---- the shell: list on the left, the map is everything else ----
    On a phone the list becomes a sheet over a full-screen map; see the end. */
-#app{position:relative; height:100%; display:grid; grid-template-columns:clamp(350px,31vw,430px) minmax(0,1fr)}
+#app{position:relative; height:100%; display:grid; grid-template-columns:clamp(344px,30vw,420px) minmax(0,1fr)}
 #panel{position:relative; z-index:800; display:flex; flex-direction:column; min-width:0; min-height:0;
-  background:var(--sheet); border-right:1px solid var(--rule)}
+  background:var(--sheet); border-right:1px solid var(--line)}
 .sheet-handle{display:none}
-.head{display:flex; flex-direction:column; gap:12px; padding:18px 16px 12px}
-.brand{display:flex; align-items:flex-start; gap:10px}
+.head{display:flex; flex-direction:column; gap:14px; padding:18px 16px 12px}
+.brand{display:flex; align-items:center; gap:10px}
+.brand-mark{flex:none; display:grid; place-items:center; width:34px; height:34px; border-radius:10px; background:var(--accent); color:#fff}
 .brand-text{flex:1; min-width:0}
-.eyebrow{margin:0 0 3px; font-family:var(--mono); font-size:10.5px; font-weight:500; letter-spacing:.12em; text-transform:uppercase; color:var(--ink-3)}
-h1{margin:0; font-family:var(--display); font-weight:800; font-size:23px; line-height:1.05; letter-spacing:-.025em; white-space:nowrap}
-.acts{display:flex; gap:6px; flex:none}
-.pillbtn{display:inline-flex; align-items:center; gap:6px; height:32px; padding:0 11px; border-radius:100px;
-  border:1px solid var(--rule); background:var(--sheet); font-family:var(--mono); font-size:10.5px; font-weight:600;
-  letter-spacing:.08em; text-transform:uppercase; color:var(--accent-ink); text-decoration:none; white-space:nowrap;
-  transition:border-color .15s, background .15s}
-.pillbtn:hover:not(:disabled){border-color:var(--accent); background:var(--accent-wash)}
-.pillbtn.main{background:var(--accent); border-color:var(--accent); color:var(--on-accent)}
-.pillbtn.main:hover{filter:brightness(1.1); background:var(--accent)}
-.pillbtn:disabled{opacity:.55; cursor:progress}
-.pillbtn:focus-visible{outline:2px solid var(--accent); outline-offset:2px}
-.pullnote{margin:-4px 0 0; font-family:var(--mono); font-size:11.5px; line-height:1.6; color:var(--ink-3)}
+.eyebrow{margin:0; font-size:11px; font-weight:500; letter-spacing:.12em; text-transform:uppercase; color:var(--ink-2)}
+h1{margin:0; font:700 23px/1.1 var(--display); letter-spacing:-.01em; white-space:nowrap; overflow:hidden; text-overflow:ellipsis}
+.add-btn{flex:none; display:inline-flex; align-items:center; gap:6px; height:36px; padding:0 14px 0 11px; border-radius:999px;
+  border:1px solid var(--line); background:var(--sheet); font-weight:600; font-size:13px; color:var(--ink); text-decoration:none}
+.add-btn:hover{border-color:var(--ink-2)}
+.pullnote{margin:-4px 0 0; padding:9px 12px; border-radius:10px; background:var(--field); font-size:13px; color:var(--ink-2)}
 .pullnote:empty{display:none}
-.pullnote b{color:var(--ink-2); font-weight:600}
+.pullnote b{color:var(--ink); font-weight:600}
 .pullnote .bad{color:var(--accent-ink)}
-
-.from{display:flex; align-items:center; gap:10px}
-.from-k{font-family:var(--mono); font-size:10.5px; font-weight:500; letter-spacing:.1em; text-transform:uppercase; color:var(--ink-3); white-space:nowrap}
-.switch{display:flex; flex:1; border:1px solid var(--rule); border-radius:3px; overflow:hidden; background:var(--sheet)}
-.switch button{flex:1; appearance:none; border:0; background:transparent; font-family:var(--mono); font-size:10.5px; font-weight:500; letter-spacing:.08em; text-transform:uppercase; color:var(--ink-2); padding:7px 8px; white-space:nowrap; transition:background .15s,color .15s}
-.switch button+button{border-left:1px solid var(--rule)}
-.switch button:hover{background:var(--sheet-2); color:var(--ink)}
-.switch button[aria-pressed="true"]{background:var(--accent); color:var(--on-accent)}
-.switch button:focus-visible{outline:2px solid var(--accent); outline-offset:-3px}
 
 .search-row{display:flex; gap:8px}
 .search{position:relative; flex:1; min-width:0}
-.search svg{position:absolute; left:12px; top:50%; transform:translateY(-50%); color:var(--ink-3); pointer-events:none}
-.search input{width:100%; height:42px; padding:0 12px 0 37px; border-radius:6px; border:1px solid var(--rule); background:var(--sheet-2); font-family:var(--display); font-size:16px}
-.search input::placeholder{color:var(--ink-3)}
-.search input:focus-visible{outline:2px solid var(--accent); outline-offset:1px}
-.near-btn{flex:none; display:inline-flex; align-items:center; gap:7px; height:42px; padding:0 13px; border-radius:6px;
-  border:1px solid var(--rule); background:var(--sheet); font-family:var(--display); font-weight:600; font-size:14px; white-space:nowrap}
-.near-btn:hover{border-color:var(--ink-3)}
+.search svg{position:absolute; left:12px; top:50%; transform:translateY(-50%); color:var(--ink-2); pointer-events:none}
+.search input{width:100%; height:44px; padding:0 14px 0 38px; border-radius:12px; border:1px solid var(--line); background:var(--field); font-size:16px}
+.search input::placeholder{color:var(--ink-2); opacity:.85}
+.near-btn{flex:none; display:inline-flex; align-items:center; gap:7px; height:44px; padding:0 14px; border-radius:12px;
+  border:1px solid var(--line); background:var(--sheet); font-weight:600; white-space:nowrap}
+.near-btn:hover{border-color:var(--ink-2)}
 .near-btn[aria-pressed="true"]{background:var(--me); border-color:var(--me); color:#fff}
 .near-btn:disabled{opacity:.7; cursor:default}
-.near-btn:focus-visible{outline:2px solid var(--accent); outline-offset:2px}
-.near-note{margin:0; padding:9px 12px; border-radius:6px; background:var(--sheet-2); border:1px solid var(--rule); font-size:14px; line-height:1.45}
+.near-note{margin:0; padding:9px 12px; border-radius:10px; background:var(--field); border:1px solid var(--line); font-size:13px}
 
 .chips{display:flex; flex-wrap:wrap; gap:6px}
 .chips::-webkit-scrollbar{display:none}
-.chip{display:inline-flex; align-items:center; gap:6px; height:30px; padding:0 10px 0 5px; border-radius:100px;
-  border:1px solid var(--rule); background:var(--sheet); font-family:var(--display); font-size:13px; font-weight:500;
-  white-space:nowrap; transition:background .15s, border-color .15s, color .15s}
-.chip:hover{border-color:var(--c,var(--ink-3))}
-.chip .n{font-family:var(--mono); font-size:11px; color:var(--ink-3); font-variant-numeric:tabular-nums}
+.chip{display:inline-flex; align-items:center; gap:6px; height:32px; padding:0 10px 0 7px; border-radius:999px;
+  border:1px solid var(--line); background:var(--sheet); font-size:13px; font-weight:500; white-space:nowrap;
+  transition:background .15s, border-color .15s}
+.chip:hover{border-color:var(--c,var(--ink-2))}
+.chip .n{color:var(--ink-2); font-weight:400; font-variant-numeric:tabular-nums}
 .chip[aria-pressed="true"]{background:var(--ink); border-color:var(--ink); color:var(--sheet)}
-.chip[aria-pressed="true"] .n{color:inherit; opacity:.7}
+.chip[aria-pressed="true"] .n{color:inherit; opacity:.75}
 .chip[aria-pressed="true"] .ico{box-shadow:0 0 0 2px var(--sheet)}
 .chip:disabled{opacity:.4; cursor:default}
-.chip:focus-visible{outline:2px solid var(--accent); outline-offset:2px}
+.chip:active{transform:scale(.97)}
 
-.meta{display:flex; align-items:center; justify-content:space-between; gap:10px; padding:9px 16px; border-top:1px solid var(--rule-soft); border-bottom:1px solid var(--rule); font-family:var(--mono); font-size:11px; color:var(--ink-2); letter-spacing:.02em}
-.meta-r{display:flex; align-items:center; gap:12px}
-.meta select{appearance:none; border:1px solid var(--rule); border-radius:3px; background:var(--sheet) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='8' height='5'%3E%3Cpath d='M0 0h8L4 5z' fill='%238095A2'/%3E%3C/svg%3E") no-repeat right 8px center;
-  padding:4px 22px 4px 8px; font-family:var(--mono); font-size:11px; color:var(--ink)}
-.link-btn{background:none; border:0; padding:2px 0; color:var(--accent-ink); font-family:var(--mono); font-size:11px; font-weight:600; text-decoration:underline; text-underline-offset:3px}
+/* Whose door the minutes are measured from: underlined tabs, like a region bar. */
+.from{display:flex; align-items:stretch; gap:2px; margin:0 16px; border-bottom:1px solid var(--line); overflow-x:auto; scrollbar-width:none}
+.from-k{align-self:center; padding:0 6px 1px 0; font-size:12px; color:var(--ink-2)}
+.switch{display:flex; gap:2px}
+.switch button{flex:none; background:none; border:0; border-bottom:2px solid transparent; margin-bottom:-1px; padding:8px 10px 9px;
+  color:var(--ink-2); font-weight:500; white-space:nowrap}
+.switch button:hover{color:var(--ink)}
+.switch button[aria-pressed="true"]{color:var(--ink); border-bottom-color:var(--accent)}
+
+.meta{display:flex; align-items:center; justify-content:space-between; gap:10px; padding:10px 16px 6px; min-height:24px; color:var(--ink-2); font-size:12px}
+.meta-r{display:flex; align-items:center; gap:14px}
+.meta select{appearance:none; border:0; background:transparent url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='8' height='5'%3E%3Cpath d='M0 0h8L4 5z' fill='%2356666F'/%3E%3C/svg%3E") no-repeat right 0 center;
+  padding:2px 14px 2px 0; font-size:12px; font-weight:600; color:var(--ink)}
+.link-btn{background:none; border:0; padding:4px 0; color:var(--accent); font-weight:600; font-size:12px; text-decoration:underline; text-underline-offset:3px}
+.link-btn:disabled{opacity:.6; cursor:progress}
 
 .scroll{flex:1; min-height:0; overflow-y:auto; overscroll-behavior:contain}
-.list{list-style:none; margin:0; padding:0}
-.item{display:grid; grid-template-columns:28px minmax(0,1fr) auto; gap:0 12px; width:100%; align-items:start; text-align:left;
-  background:none; border:0; border-bottom:1px solid var(--rule-soft); padding:13px 16px; transition:background .12s}
-.item:hover{background:var(--sheet-2)}
-.item:active{background:var(--rule-soft)}
-.item[aria-current="true"]{background:var(--accent-wash); box-shadow:inset 3px 0 0 var(--accent)}
-.item:focus-visible{outline:2px solid var(--accent); outline-offset:-2px}
+.list{list-style:none; margin:0; padding:0; border-top:1px solid var(--line)}
+.item{display:grid; grid-template-columns:26px minmax(0,1fr) auto; gap:0 12px; width:100%; align-items:start; text-align:left;
+  background:none; border:0; border-bottom:1px solid var(--line); padding:12px 16px; transition:background .12s}
+.item:hover{background:var(--field)}
+.item:active{background:var(--line)}
+.item[aria-current="true"]{background:var(--field); box-shadow:inset 3px 0 0 var(--accent)}
 .item .ico{margin-top:1px}
 .item-body{display:block; min-width:0}
-.item-name{display:block; font-family:var(--display); font-weight:600; font-size:15.5px; line-height:1.25; letter-spacing:-.01em; overflow-wrap:anywhere}
-.item-meta{display:flex; flex-wrap:wrap; align-items:center; gap:4px 9px; margin-top:5px; font-family:var(--mono); font-size:11px; color:var(--ink-2)}
-.item-meta .c-rate{display:inline; margin:0; font-size:12px}
-.item-note{display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden; margin-top:5px; font-size:15px; line-height:1.35; color:var(--ink-2)}
-.item-note .g{font-family:var(--mono); font-weight:600; font-size:11px; color:var(--accent)}
-.item-tag{display:block; margin-top:6px; font-family:var(--mono); font-size:10px; font-weight:500; letter-spacing:.09em; text-transform:uppercase; color:var(--ink-3)}
-.item-time{text-align:right; min-width:58px}
-.item-time .c-dist{display:block; font-size:15px}
-.item-time .c-walk{margin-top:2px; max-width:110px; margin-left:auto}
-.dist{color:var(--me); font-weight:600}
+.item-name{display:block; font-weight:600; font-size:15px; line-height:1.3; overflow-wrap:anywhere}
+.item-note{display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden; margin-top:3px; font-size:13px; color:var(--ink-2)}
+.item-tag{display:block; margin-top:4px; font-size:11px; font-weight:500; letter-spacing:.06em; text-transform:uppercase; color:var(--ink-2)}
+.item-tag .r{color:var(--ink); text-transform:none; letter-spacing:0; font-weight:600}
+.item-time{text-align:right; padding-top:1px; white-space:nowrap}
+.item-time b{display:block; font-weight:600; font-size:15px; line-height:1.3; font-variant-numeric:tabular-nums}
+.item-time small{display:block; font-size:11px; color:var(--ink-2)}
+.dist{color:var(--me); font-weight:600; text-transform:none; letter-spacing:.02em}
 .empty{padding:36px 24px; text-align:center; color:var(--ink-2)}
-.empty strong{display:block; color:var(--ink); font-family:var(--display); font-size:17px; margin-bottom:6px}
-.top-tag{display:inline-flex; align-items:center; gap:3px; background:var(--gold); color:var(--on-gold); border-radius:100px; padding:0 7px 0 5px;
-  margin-right:7px; font-size:9.5px; font-weight:700; letter-spacing:.06em; line-height:16px; vertical-align:1px}
-.top-tag::before{content:"\2605"; font-size:10px}
+.empty strong{display:block; color:var(--ink); font:700 17px var(--display); margin-bottom:6px}
+.top-tag{display:inline-flex; align-items:center; gap:3px; background:var(--gold); color:var(--on-gold); border-radius:999px; padding:1px 8px 1px 6px;
+  margin-right:8px; font-size:10.5px; font-weight:700; letter-spacing:.05em; text-transform:uppercase; line-height:16px}
+.top-tag::before{content:"\2605"; font-size:11px}
 
-.legend{display:flex; flex-wrap:wrap; gap:6px 16px; align-items:center; padding:14px 16px 6px; font-family:var(--mono); font-size:10.5px; color:var(--ink-2); letter-spacing:.03em}
-.legend i{display:inline-block; vertical-align:middle; margin-right:6px}
-.k-home{width:0; height:0; border-left:7px solid transparent; border-right:7px solid transparent; border-bottom:12px solid var(--ink); margin-bottom:1px}
-.k-ne,.k-dt,.k-ew{width:22px; height:11px; border-radius:6px}
-.k-ne{background:var(--ne)} .k-dt{background:var(--dt)} .k-ew{background:var(--ew)}
-.k-line{width:20px; height:0; border-top:2px solid var(--accent)}
-.k-ring{width:16px; height:16px; border-radius:50%; border:1px dashed var(--ink-3)}
-.colophon{padding:6px 16px 28px; font-family:var(--mono); font-size:10.5px; line-height:1.9; color:var(--ink-3); letter-spacing:.03em}
-.colophon b{color:var(--ink-2); font-weight:500}
+.colophon{padding:14px 16px 28px; font-size:12px; line-height:1.6; color:var(--ink-3)}
 .colophon a{color:var(--ink-2)}
 
 /* ---- category glyphs: chips, list rows and the pins share them ---- */
@@ -183,148 +165,110 @@ h1{margin:0; font-family:var(--display); font-weight:800; font-size:23px; line-h
 .ico.top svg{fill:var(--on-gold); stroke:var(--on-gold); stroke-width:1.2}
 
 /* ---- map ---- */
-#map{min-width:0; height:100%; background:var(--sheet-2)}
-.leaflet-container{font-family:var(--mono); background:var(--sheet-2)}
-.leaflet-control-attribution{font-family:var(--mono); font-size:9.5px; background:var(--halo)!important; color:var(--ink-3)!important}
+#map{min-width:0; height:100%; background:var(--paper); font-family:var(--body)}
+.leaflet-container{background:var(--paper); font-family:var(--body)}
+.leaflet-tile-pane{filter:var(--tile-filter)}
+.leaflet-control-attribution{background:var(--halo)!important; color:var(--ink-2)!important; font-size:10px}
 .leaflet-control-attribution a{color:var(--ink-2)!important}
-.leaflet-control-zoom{border:0!important; box-shadow:0 1px 6px var(--drop)!important; border-radius:8px; overflow:hidden}
-.leaflet-bar.leaflet-control-zoom a{background:var(--sheet); color:var(--ink); border-bottom-color:var(--rule); width:38px; height:38px; line-height:37px; font-size:21px; font-weight:500}
-.leaflet-bar.leaflet-control-zoom a:hover{background:var(--sheet-2); color:var(--ink)}
+.leaflet-control-zoom{border:0!important; box-shadow:0 1px 6px var(--shadow)!important; border-radius:12px; overflow:hidden}
+.leaflet-bar.leaflet-control-zoom a{background:var(--sheet); color:var(--ink); border-bottom-color:var(--line); width:38px; height:38px; line-height:38px; font-size:20px}
+.leaflet-bar.leaflet-control-zoom a:hover{background:var(--field); color:var(--ink)}
 
 .pin-wrap{background:none; border:0}
 .pin{position:relative; display:grid; place-items:center; width:28px; height:28px; border-radius:50%; background:var(--c);
-  border:2.5px solid var(--sheet); box-shadow:0 1px 5px var(--drop); transition:transform .15s, box-shadow .15s;
+  border:2.5px solid var(--sheet); box-shadow:0 1px 5px var(--shadow); transition:transform .15s;
   animation:pinIn .26s cubic-bezier(.2,.9,.3,1.25)}
 .pin>svg{width:15px; height:15px; fill:none; stroke:var(--glyph); stroke-width:2.3; stroke-linecap:round; stroke-linejoin:round}
-.pin-wrap:hover .pin, .pin-wrap.is-active .pin{transform:scale(1.28)}
-.pin-wrap.is-active .pin{box-shadow:0 0 0 3px var(--accent), 0 2px 8px var(--drop)}
+.pin-wrap:hover .pin, .pin-wrap.is-active .pin{transform:scale(1.3)}
+.pin-wrap.is-active .pin{box-shadow:0 0 0 3px var(--accent), 0 2px 8px var(--shadow)}
 .pin-wrap:focus-visible{outline:none}
 .pin-wrap:focus-visible .pin{box-shadow:0 0 0 3px var(--accent)}
 .star{position:absolute; top:-7px; right:-7px; display:grid; place-items:center; width:17px; height:17px; padding:2px; border-radius:50%; background:var(--gold); box-shadow:0 0 0 2px var(--sheet)}
 .star svg{width:100%; height:100%; fill:var(--on-gold)}
 .cl-wrap{background:none; border:0}
 .cl{display:grid; place-items:center; width:100%; height:100%; border-radius:50%; background:var(--ink); color:var(--sheet);
-  font:600 13px var(--mono); border:3px solid var(--sheet); box-shadow:0 1px 6px var(--drop); font-variant-numeric:tabular-nums}
+  font:600 13px var(--body); border:3px solid var(--sheet); box-shadow:0 1px 6px var(--shadow); font-variant-numeric:tabular-nums}
 @keyframes pinIn{from{transform:scale(.5); opacity:0} to{transform:scale(1); opacity:1}}
 
 .me-wrap{background:none; border:0}
-.me-dot{display:block; width:22px; height:22px; border-radius:50%; background:var(--me); border:4px solid #fff; box-shadow:0 0 0 1px rgba(0,0,0,.15), 0 2px 8px var(--drop)}
+.me-dot{display:block; width:22px; height:22px; border-radius:50%; background:var(--me); border:4px solid #fff; box-shadow:0 0 0 1px rgba(0,0,0,.15), 0 2px 8px var(--shadow)}
 .me-acc{fill:var(--me); fill-opacity:.13; stroke:var(--me); stroke-width:1px; stroke-opacity:.5}
 
-.hm{display:grid; place-items:center; cursor:pointer}
-.hm svg{display:block; width:32px; height:28px; overflow:visible;
-  filter:drop-shadow(0 0 3px var(--halo)) drop-shadow(0 1px 2px rgba(0,0,0,.3))}
-.hm polygon{fill:var(--halo); stroke:var(--ink); stroke-width:2.6; stroke-linejoin:round;
-  transition:stroke .15s, fill .15s, stroke-width .15s}
-.hm.off polygon{stroke:var(--ink-3); stroke-width:2; stroke-dasharray:4.5 3.5; fill:none}
-.hm:hover polygon{stroke:var(--accent)}
-.hm:focus-visible{outline:2px solid var(--accent); outline-offset:3px; border-radius:3px}
+/* Homes: a small house badge. The one being measured from is solid. */
+.hm{display:grid; place-items:center; width:30px; height:30px; border-radius:9px; background:var(--ink); color:var(--sheet);
+  border:2.5px solid var(--sheet); box-shadow:0 1px 5px var(--shadow); cursor:pointer; transition:transform .15s, background .15s}
+.hm svg{width:15px; height:15px; fill:none; stroke:currentColor; stroke-width:2.3; stroke-linecap:round; stroke-linejoin:round}
+.hm.off{background:var(--sheet); color:var(--ink-2); border-color:var(--line)}
+.hm:hover{transform:scale(1.15)}
 
-.mrt{display:flex; align-items:center; justify-content:center; width:48px; height:24px; border-radius:12px;
-  font-family:var(--mono); font-size:11px; font-weight:600; letter-spacing:.04em; color:#fff;
-  box-shadow:0 0 0 2.5px var(--halo), 0 2px 6px rgba(0,0,0,.28)}
+/* MRT: just the code, in its line colour. The basemap already names the station. */
+.mrt{display:flex; align-items:center; justify-content:center; height:18px; padding:0 6px; border-radius:9px; width:max-content; margin:auto;
+  font:700 10px/1 var(--body); letter-spacing:.03em; color:#fff; box-shadow:0 0 0 2px var(--sheet)}
 .mrt.NE{background:var(--ne)} .mrt.DT{background:var(--dt)} .mrt.EW{background:var(--ew)}
+.far .mrt{display:none}
 
-.leaflet-tooltip.lbl{background:var(--halo); border:1px solid var(--rule); border-radius:2px; box-shadow:none;
-  color:var(--ink); font-family:var(--display); font-weight:600; font-size:12.5px; letter-spacing:-.005em;
-  padding:3px 7px; white-space:nowrap}
-.leaflet-tooltip.lbl::before{display:none}
-.leaflet-tooltip.lbl b{display:block; font-family:var(--mono); font-size:10px; font-weight:500; color:var(--ink-2); letter-spacing:.03em}
-.leaflet-tooltip.lbl.home{font-family:var(--mono); font-size:10.5px; font-weight:600; letter-spacing:.06em; text-transform:uppercase}
-.leaflet-tooltip.lbl.stn{font-family:var(--mono); font-size:11px; font-weight:600; letter-spacing:.07em; text-transform:uppercase; border-width:1.5px}
-.leaflet-tooltip.lbl.stn.NE{border-color:var(--ne); color:var(--ne)}
-.leaflet-tooltip.lbl.stn.DT{border-color:var(--dt); color:var(--dt)}
-.leaflet-tooltip.lbl.stn.EW{border-color:var(--ew); color:var(--ew)}
-.leaflet-tooltip.lbl.on{border-color:var(--accent); color:var(--accent-ink)}
-.zoomed-out .leaflet-tooltip.lbl.place{display:none}
-/* Far out, every station on the network is already printed on the basemap. */
-.far .leaflet-tooltip.lbl.stn, .far .mrt{display:none}
-.leaflet-tooltip.lbl.place{cursor:pointer; transition:border-color .15s, color .15s, background .15s}
-.leaflet-tooltip.lbl.place:hover{border-color:var(--accent); color:var(--accent-ink)}
+.leaflet-tooltip.tip{background:var(--sheet); color:var(--ink); border:0; border-radius:8px; box-shadow:0 2px 10px var(--shadow);
+  font:600 12.5px var(--body); padding:4px 9px}
+.leaflet-tooltip.tip::before{display:none}
+.leaflet-tooltip.tip.home{font-weight:500; color:var(--ink-2)}
 
-.leaflet-popup-content-wrapper{background:var(--sheet); color:var(--ink); border:1px solid var(--rule);
-  border-radius:6px; box-shadow:0 2px 4px rgba(0,0,0,.10), 0 14px 34px -14px rgba(0,0,0,.42); padding:0; overflow:hidden;
+.leaflet-popup-content-wrapper{background:var(--sheet); color:var(--ink); border-radius:14px; box-shadow:0 6px 24px var(--shadow);
   animation:popIn .18s ease-out; transform-origin:50% 100%}
 @keyframes popIn{from{transform:translateY(6px) scale(.96); opacity:0} to{transform:none; opacity:1}}
-.leaflet-popup-tip{background:var(--sheet); border:1px solid var(--rule)}
-.leaflet-popup-content{margin:0; font-family:var(--body); line-height:1.45; width:auto!important}
-.leaflet-container a.leaflet-popup-close-button{color:var(--ink-3); top:7px; right:7px; width:22px; height:22px; font-size:17px; line-height:20px}
-.leaflet-container a.leaflet-popup-close-button:hover{color:var(--ink); background:var(--sheet-2); border-radius:2px}
+.leaflet-popup-tip{background:var(--sheet)}
+.leaflet-popup-content{margin:14px 16px 16px; font:14px/1.45 var(--body)}
+.leaflet-container a.leaflet-popup-close-button{color:var(--ink-2); top:6px; right:6px; width:28px; height:28px; font-size:20px; line-height:26px}
 
-.card{display:flex; flex-direction:column}
-.card-head{padding:15px 17px 13px; border-bottom:1px solid var(--rule-soft); background:var(--sheet-2)}
-.card-cat{display:flex; align-items:center; flex-wrap:wrap; gap:6px; font-family:var(--mono); font-size:10px; font-weight:600; letter-spacing:.12em; text-transform:uppercase;
-  color:var(--ink-2); margin:0 22px 6px 0}
-.card-name{font-family:var(--display); font-weight:700; font-size:17px; line-height:1.18; letter-spacing:-.018em;
-  color:var(--ink); margin:0 22px 0 0; text-wrap:balance}
-.card-me{margin:5px 0 0; font-family:var(--mono); font-size:11px; font-weight:600; color:var(--me)}
-.card-grid{display:grid; grid-template-columns:1fr 1fr; border-bottom:1px solid var(--rule-soft)}
-.stat{padding:11px 17px; min-width:0}
-.stat+.stat{border-left:1px solid var(--rule-soft)}
-.stat-k{display:block; font-family:var(--mono); font-size:9.5px; font-weight:500; letter-spacing:.11em;
-  text-transform:uppercase; color:var(--ink-3); margin-bottom:5px; white-space:nowrap}
-.stat-v{display:flex; align-items:center; gap:7px; flex-wrap:wrap; font-family:var(--mono); font-size:13px;
-  font-weight:600; font-variant-numeric:tabular-nums; color:var(--ink); letter-spacing:-.01em; line-height:1.3}
-.stat-v small{font-family:var(--mono); font-size:10.5px; font-weight:400; color:var(--ink-2); letter-spacing:.03em}
-.card-note{margin:0; padding:13px 17px; border-bottom:1px solid var(--rule-soft); font-size:16px; line-height:1.4}
-.card-note span{display:block}
-.card-note .pl{color:var(--ink)} .card-note .mi{color:var(--ink-2); margin-top:4px}
-.card-note .g{font-family:var(--mono); font-weight:600; font-size:12px}
-.card-note .pl .g{color:var(--accent)} .card-note .mi .g{color:var(--ink-3)}
-.card-addr{margin:0; padding:11px 17px; font-family:var(--mono); font-size:11px; line-height:1.5; color:var(--ink-2)}
-.card-foot{padding:0 17px 15px}
+.pop-kicker{display:flex; align-items:center; flex-wrap:wrap; gap:7px; margin:0 24px 6px 0; font-size:11px; font-weight:600; letter-spacing:.08em; text-transform:uppercase; color:var(--ink-2)}
+.pop-kicker .top-tag{margin:0}
+.pop-name{margin:0; font:700 19px/1.2 var(--display); overflow-wrap:anywhere}
+.pop-facts{margin:6px 0 0; color:var(--ink-2)}
+.pop-facts b{color:var(--ink); font-weight:600}
+.pop-facts .star-i{color:var(--gold)}
+.pop-me{margin:4px 0 0; color:var(--me); font-weight:600}
+.pop-note{margin:10px 0 0; overflow-wrap:anywhere}
+.pop-note span{display:block}
+.pop-note .mi{color:var(--ink-2); margin-top:2px}
+.pop-note .g{font-weight:700; margin-right:4px}
+.pop-note .pl .g{color:var(--c3)} .pop-note .mi .g{color:var(--ink-3)}
+.pop-addr{margin:8px 0 0; font-size:12.5px; color:var(--ink-2)}
+.pop-actions{display:flex; flex-wrap:wrap; gap:8px; margin-top:12px}
+.btn{display:inline-flex; align-items:center; height:34px; padding:0 12px; border-radius:10px; border:1px solid var(--line); background:var(--field);
+  color:var(--ink); text-decoration:none; font-weight:600; font-size:13px}
+.btn:hover{border-color:var(--ink-2)}
+.btn-main{background:var(--accent); border-color:var(--accent); color:var(--on-accent)}
+.btn-main:hover{filter:brightness(1.06); border-color:var(--accent)}
+.leaflet-popup-content a.btn{color:var(--ink)}
+.leaflet-popup-content a.btn-main{color:var(--on-accent)}
 
-.go{display:inline-flex; align-items:center; gap:5px; font-family:var(--mono); font-size:10.5px; font-weight:600;
-  letter-spacing:.06em; text-transform:uppercase; color:var(--accent-ink); text-decoration:none;
-  border:1px solid var(--rule); border-radius:3px; padding:5px 9px; white-space:nowrap; transition:border-color .15s, background .15s}
-.go:hover{border-color:var(--accent); background:var(--accent-wash)}
-.go:focus-visible{outline:2px solid var(--accent); outline-offset:2px}
-.go.block{display:flex; justify-content:center; width:100%; padding:10px 12px; font-size:11px;
-  background:var(--accent); color:var(--on-accent); border-color:var(--accent)}
-.go.block:hover{filter:brightness(1.1); background:var(--accent)}
-
-.who{display:inline-block; font-family:var(--mono); font-size:9.5px; font-weight:600;
-  letter-spacing:.1em; text-transform:uppercase; color:var(--ink-2);
-  background:transparent; border:1px solid var(--rule); border-radius:100px; padding:1px 8px}
-.c-dist{font-family:var(--mono); font-size:16.5px; font-weight:600; font-variant-numeric:tabular-nums; color:var(--ink); white-space:nowrap; letter-spacing:-.02em}
-.c-walk.est{opacity:.72; font-style:italic}
-.c-walk{font-family:var(--mono); font-size:10.5px; color:var(--ink-2); font-variant-numeric:tabular-nums; display:block; margin-top:3px; line-height:1.4}
-.pill{display:inline-block; font-family:var(--mono); font-size:10px; font-weight:600; letter-spacing:.04em; color:#fff; padding:2px 7px; border-radius:9px; white-space:nowrap}
+.pill{display:inline-block; font-size:10px; font-weight:700; letter-spacing:.03em; color:#fff; padding:1px 6px; border-radius:8px; white-space:nowrap; vertical-align:1px}
 .pill.NE{background:var(--ne)} .pill.DT{background:var(--dt)} .pill.EW{background:var(--ew)}
 /* The rest of the network. Only these three lines are drawn on the map, but
-   any station can be named in a row, so every line needs its colour. */
+   any station can be named in a card, so every line needs its colour. */
 .pill.NS{background:var(--ns)} .pill.CC{background:var(--cc)} .pill.CE{background:var(--cc)}
 .pill.TE{background:var(--te)} .pill.CG{background:var(--ew)}
-.stars{display:inline-flex; gap:2.5px; align-items:center; vertical-align:middle}
-.stars i{width:9px; height:9px; border-radius:50%; background:var(--rule); display:block}
-.stars i.f{background:var(--accent)}
-.stars i.h{background:linear-gradient(90deg,var(--accent) 50%,var(--rule) 50%)}
-.c-rate{font-family:var(--mono); font-size:14px; font-weight:600; font-variant-numeric:tabular-nums; color:var(--ink); letter-spacing:-.01em}
-.pb{font-family:var(--mono); font-size:13px; font-weight:600; letter-spacing:1px; white-space:nowrap}
-.pb span{color:var(--rule)}
-.pb span.on{color:var(--ink)}
-.c-none{font-family:var(--mono); font-size:11px; color:var(--ink-3); letter-spacing:.04em; font-style:normal}
 .sr{position:absolute; width:1px; height:1px; overflow:hidden; clip:rect(0 0 0 0); white-space:nowrap}
 
 /* ---- phones: the panel becomes a bottom sheet over a full-screen map ---- */
 @media (max-width:760px){
   #app{display:block}
   #map{position:absolute; inset:0}
-  #panel{position:fixed; left:0; right:0; bottom:0; height:80vh; height:80dvh;
-    border:1px solid var(--rule); border-bottom:0; border-radius:18px 18px 0 0; box-shadow:0 -8px 30px var(--drop);
+  #panel{position:fixed; left:0; right:0; bottom:0; height:78vh; height:78dvh;
+    border:1px solid var(--line); border-bottom:0; border-radius:20px 20px 0 0; box-shadow:0 -8px 30px var(--shadow);
     padding-bottom:env(safe-area-inset-bottom,0px); transition:height .28s cubic-bezier(.2,.8,.2,1)}
-  #panel[data-sheet="peek"]{height:calc(176px + env(safe-area-inset-bottom,0px))}
+  #panel[data-sheet="peek"]{height:calc(166px + env(safe-area-inset-bottom,0px))}
   .sheet-handle{display:flex; align-items:center; justify-content:center; flex:none; width:100%; height:22px; padding:0; border:0; background:none}
-  .sheet-handle::before{content:""; width:40px; height:4px; border-radius:2px; background:var(--rule)}
-  .head{padding:0 16px 10px; gap:10px}
-  h1{font-size:19px; margin-top:4px}
-  /* The sheet covers the bottom of the map, so the credit moves to the top. */
-  .leaflet-bottom.leaflet-right{top:0; bottom:auto}
-  .eyebrow{display:none}
+  .sheet-handle::before{content:""; width:40px; height:4px; border-radius:2px; background:var(--line)}
+  .head{padding:0 16px 8px; gap:10px}
+  h1{font-size:20px}
+  .eyebrow,.brand-mark{display:none}
+  .search input,.near-btn{height:42px}
   #panel[data-sheet="peek"] .from, #panel[data-sheet="peek"] .meta, #panel[data-sheet="peek"] .scroll,
   #panel[data-sheet="peek"] .pullnote, #panel[data-sheet="peek"] .near-note{display:none}
   .chips{flex-wrap:nowrap; overflow-x:auto; scrollbar-width:none; margin:0 -16px; padding:0 16px}
   .leaflet-control-zoom{display:none}
+  /* The sheet covers the bottom of the map, so the credit moves to the top. */
+  .leaflet-bottom.leaflet-right{top:0; bottom:auto}
 }
 @media (prefers-reduced-motion:reduce){ *{transition:none!important; animation:none!important} }
 </style>
@@ -336,14 +280,15 @@ h1{margin:0; font-family:var(--display); font-weight:800; font-size:23px; line-h
     <button class="sheet-handle" id="handle" type="button" aria-expanded="false" aria-controls="list" aria-label="Show or hide the list of places"></button>
     <div class="head">
       <div class="brand">
+        <span class="brand-mark" aria-hidden="true"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3.5 12h17a8.5 8.5 0 0 1-17 0Z"/><path d="M8.5 9 15 2.5M12.5 9.5 19 4"/></svg></span>
         <div class="brand-text">
-          <p class="eyebrow">Singapore · Boon Keng &amp; around</p>
+          <p class="eyebrow">Singapore · Boon Keng</p>
           <h1>Food recommendation</h1>
         </div>
-        <div class="acts">
-          <a class="pillbtn main" href="__SHEET_URL__" target="_blank" rel="noopener noreferrer" title="Add a row to the shared sheet">Add &#8599;</a>
-          <button class="pillbtn" id="pull" type="button" title="Re-read the sheet and redraw this page">Pull &#8635;</button>
-        </div>
+        <a class="add-btn" href="__SHEET_URL__" target="_blank" rel="noopener noreferrer" title="Add a row to the shared Google Sheet">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" aria-hidden="true"><path d="M12 4v16M4 12h16"/></svg>
+          <span>Add</span>
+        </a>
       </div>
       <p class="pullnote" id="pullnote" role="status" aria-live="polite"></p>
       <div class="search-row">
@@ -358,15 +303,16 @@ h1{margin:0; font-family:var(--display); font-weight:800; font-size:23px; line-h
       </div>
       <p class="near-note" id="nearNote" role="status" hidden></p>
       <div class="chips" id="chips" role="group" aria-label="Filter by category"></div>
-      <div class="from">
-        <span class="from-k">From</span>
-        <div class="switch" id="switch" role="group" aria-label="Choose which home to measure from"></div>
-      </div>
+    </div>
+    <div class="from">
+      <span class="from-k">Time from</span>
+      <div class="switch" id="switch" role="group" aria-label="Choose which home to measure from"></div>
     </div>
     <div class="meta">
       <span id="count" aria-live="polite"></span>
       <span class="meta-r">
-        <button class="link-btn" id="clear" type="button" hidden>Clear</button>
+        <button class="link-btn" id="clear" type="button" hidden>Clear filters</button>
+        <button class="link-btn" id="pull" type="button" title="Re-read the Google Sheet and redraw this page">Refresh</button>
         <label class="sr" for="sort">Sort by</label>
         <select id="sort">
           <option value="time">Quickest</option>
@@ -381,16 +327,8 @@ h1{margin:0; font-family:var(--display); font-weight:800; font-size:23px; line-h
     </div>
     <div class="scroll">
       <ul class="list" id="list"></ul>
-      <div class="legend">
-        <span><i class="k-home"></i>home</span>
-        <span><i class="k-ring"></i><span id="capRing">rings</span></span>
-        <span><i class="k-line"></i>selected run</span>
-        <span><i class="k-ne"></i>NE</span>
-        <span><i class="k-dt"></i>DT</span>
-        <span><i class="k-ew"></i>EW</span>
-      </div>
       <footer class="colophon">
-        <span id="colo">10 places</span> · source: a shared Google Sheet · geocoded and routed with <b>OneMap SG</b> · rings are straight-line distances · basemap <b>OneMap</b> &copy; <a href="https://www.sla.gov.sg/">SLA</a>
+        <span id="colo">10 places</span>. Dashed <span id="capRing">rings</span>. Times are OneMap routes, on foot or by public transport, whichever is quicker. From a shared Google Sheet; maps &copy; <a href="https://www.onemap.gov.sg/">OneMap</a>, <a href="https://www.sla.gov.sg/">SLA</a>.
       </footer>
     </div>
   </aside>
@@ -435,15 +373,19 @@ h1{margin:0; font-family:var(--display); font-weight:800; font-size:23px; line-h
               changes:r.pt.changes||0, via:r.pt.via||""};
     return null;
   }
-  function tripMin(row){ return row.t ? row.t.min : row.walk; }
-  function tripLine(row){
+  // How the minutes are made up, in words for the card and in one word for the list.
+  function tripWords(row){
     var t=row.t;
-    if(!t) return '<span class="c-walk est">est. on foot &middot; '+fmtM(row.d)+' direct</span>';
-    if(t.mode==="walk") return '<span class="c-walk">walk &middot; '+fmtM(t.walk)+'</span>';
-    return '<span class="c-walk">'+esc(t.mode)+' &middot; '+
-           Math.max(1,Math.round(t.walk/CFG.walk))+' min walk'+
-           (t.changes?' &middot; '+t.changes+' change'+(t.changes>1?'s':''):'')+'</span>';
+    if(!t) return "on foot (est.)";
+    if(t.mode==="walk") return "walk";
+    return "by "+esc(t.mode)+(t.changes?", "+t.changes+" change"+(t.changes>1?"s":""):"");
   }
+  function tripShort(row){
+    var t=row.t;
+    if(!t) return "est.";
+    return t.mode==="walk" ? "walk" : esc(t.mode.replace(/ ?\+ ?/g,"+"));
+  }
+  function tripMin(row){ return row.t ? row.t.min : row.walk; }
 
   var COMPASS=["N","NNE","NE","ENE","E","ESE","SE","SSE","S","SSW","SW","WSW","W","WNW","NW","NNW"];
   var NICE=[50,100,200,250,500,1000,2000];
@@ -467,16 +409,6 @@ h1{margin:0; font-family:var(--display); font-weight:800; font-size:23px; line-h
     return window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches;
   }
   function css(n){ return getComputedStyle(document.documentElement).getPropertyValue(n).trim(); }
-  function stars(r){
-    var h="";
-    for(var i=1;i<=5;i++) h+='<i class="'+(r>=i?"f":(r>=i-0.5?"h":""))+'"></i>';
-    return '<span class="stars" role="img" aria-label="'+r.toFixed(1)+' out of 5">'+h+'</span>';
-  }
-  function priceBar(band){
-    var n=band.length, h="";
-    for(var i=1;i<=3;i++) h+='<span class="'+(i<=n?"on":"")+'">$</span>';
-    return '<span class="pb" role="img" aria-label="'+band+', on a three-band scale">'+h+'</span>';
-  }
   // No origin parameter: Google Maps then routes from the viewer's own current
   // location. It also keeps either home's coordinates out of the outbound URL.
   function gmaps(p){
@@ -584,17 +516,18 @@ h1{margin:0; font-family:var(--display); font-weight:800; font-size:23px; line-h
 
   MRT.forEach(function(s){
     L.marker([s.lat,s.lng],{
-      icon:L.divIcon({className:"", html:'<span class="mrt '+s.line+'">'+s.code+'</span>', iconSize:[48,24], iconAnchor:[24,12]}),
+      icon:L.divIcon({className:"", html:'<span class="mrt '+s.line+'" title="'+esc(s.name)+'">'+s.code+'</span>', iconSize:[44,18], iconAnchor:[22,9]}),
       keyboard:false, zIndexOffset:400, interactive:false
-    }).addTo(map)
-     .bindTooltip(esc(s.name),{permanent:true, direction:s.dir, offset:[s.dir==="right"?28:-28,0], className:"lbl stn "+s.line, opacity:1});
+    }).addTo(map);
   });
 
+  var COARSE=!!(window.matchMedia && window.matchMedia("(pointer:coarse)").matches);
   function popBottom(){ return phone.matches ? [16,196] : [16,16]; }
   function addMarker(p){
     var m=L.marker([p.lat,p.lng],{icon:pinIcon(p), title:p.name, alt:p.name, riseOnHover:true});
-    m.bindTooltip("",{permanent:true, interactive:true, direction:p.dir,
-      offset:p.dir==="bottom"?[0,16]:[p.dir==="left"?-16:16,0], className:"lbl place", opacity:1});
+    // The name on hover, nothing permanent: twenty-eight standing labels were
+    // most of the clutter. A tap on a phone opens the card, which names it.
+    if(!COARSE) m.bindTooltip(esc(p.name),{direction:"top", offset:[0,-15], className:"tip", opacity:1});
     m.bindPopup("",{closeButton:true, minWidth:278, maxWidth:300,
       autoPanPaddingTopLeft:[16,56], autoPanPaddingBottomRight:popBottom()});
     // select() owns opening and closing, so a click that toggles the popup on
@@ -621,20 +554,15 @@ h1{margin:0; font-family:var(--display); font-weight:800; font-size:23px; line-h
     setSheet("peek");
   });
 
-  // clicking the permanent label picks the place too — it doubles the target
-  map.getContainer().addEventListener("click",function(e){
-    var t=e.target.closest(".leaflet-tooltip[data-place]");
-    if(t){ lastMarkerClick=Date.now(); select(t.dataset.place); }
-  });
-
   HOMES.forEach(function(h,k){
     var m=L.marker([h.lat,h.lng],{
       icon:L.divIcon({className:"", html:'<span class="hm" data-home="'+k+'" role="button" tabindex="0" aria-label="Measure from '+esc(h.name)+'">'+
-        '<svg viewBox="0 0 32 28" aria-hidden="true" focusable="false"><polygon points="16,3 29,25 3,25"/></svg></span>',
-      iconSize:[32,28], iconAnchor:[16,17]}),
+        '<svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M4 11 12 4l8 7"/><path d="M6.5 9.5V20h11V9.5"/></svg></span>',
+      iconSize:[30,30], iconAnchor:[15,15]}),
       keyboard:false, zIndexOffset:1000
     }).addTo(map);
-    m.bindTooltip("",{permanent:true, direction:h.dir, offset:[h.dir==="right"?18:-18,0], className:"lbl home", opacity:1});
+    // Only the door being measured from keeps its name up; the others say it on hover.
+    m.bindTooltip("",{permanent:true, direction:"top", offset:[0,-16], className:"tip home", opacity:1});
     m.on("click",function(){ lastMarkerClick=Date.now(); setHome(k); });
     homeMarkers[k]=m;
   });
@@ -732,15 +660,13 @@ h1{margin:0; font-family:var(--display); font-weight:800; font-size:23px; line-h
   function decorate(id){
     var m=placeMarkers[id]; if(!m) return;
     paint(m, state.sel===id);
-    var tt=m.getTooltip(), te=tt&&tt.getElement&&tt.getElement();
-    if(te){ te.classList.toggle("on",state.sel===id); te.dataset.place=id; }
   }
 
   function drawEmpty(){
     gRings.clearLayers(); gLines.clearLayers();
     document.getElementById("list").innerHTML=
       '<li class="empty"><strong>Nothing matches</strong>Try a shorter search, or switch a category off.</li>';
-    document.getElementById("capRing").textContent="no places shown";
+    document.getElementById("capRing").textContent="rings hidden";
   }
 
   function draw(){
@@ -780,7 +706,7 @@ h1{margin:0; font-family:var(--display); font-weight:800; font-size:23px; line-h
     for(var i=0;i<NICE.length;i++){ if(max/NICE[i]>=2.5) step=NICE[i]; }
     gRings.clearLayers();
     for(var r=step;r<=max*1.12;r+=step){
-      L.circle([H.lat,H.lng],{radius:r,fill:false,color:inkDim,weight:1,dashArray:"3 4",opacity:.7,interactive:false}).addTo(gRings);
+      L.circle([H.lat,H.lng],{radius:r,fill:false,color:inkDim,weight:1,dashArray:"3 5",opacity:.45,interactive:false}).addTo(gRings);
     }
     document.getElementById("capRing").textContent="rings every "+fmtRing(step)+" from "+H.name;
 
@@ -795,40 +721,19 @@ h1{margin:0; font-family:var(--display); font-weight:800; font-size:23px; line-h
 
     R.forEach(function(row){
       var p=row.p, m=placeMarkers[p.id], on=state.sel===p.id;
-      m.setTooltipContent(esc(p.short)+(on?"<b>"+fmtM(row.d)+" · "+row.walk+" min walk</b>":""));
       decorate(p.id);
       m.setPopupContent(
-        '<div class="card">'+
-          '<div class="card-head">'+
-            '<p class="card-cat">'+ico(catOf(p),18)+esc(catOf(p))+
-              (isTop(p)?'<span class="top-tag">Top</span>':'')+
-              (p.by?' <span class="who">'+esc(p.by)+'</span>':'')+'</p>'+
-            '<h3 class="card-name">'+esc(p.name)+'</h3>'+
-            (state.me && p.dist!=null ? '<p class="card-me">'+fmtDist(p.dist)+' from you</p>' : '')+
-          '</div>'+
-          '<div class="card-grid">'+
-            '<div class="stat"><span class="stat-k">Rating</span>'+
-              '<span class="stat-v">'+p.rating.toFixed(1)+stars(p.rating)+'</span></div>'+
-            '<div class="stat"><span class="stat-k">Price</span>'+
-              '<span class="stat-v">'+priceBar(p.price)+'</span></div>'+
-          '</div>'+
-          '<div class="card-grid">'+
-            '<div class="stat"><span class="stat-k">From '+esc(H.name)+'</span>'+
-              '<span class="stat-v">'+tripMin(row)+' min<small>'+
-              (row.t ? (row.t.mode==="walk" ? "walk · "+fmtM(row.t.walk)
-                                            : row.t.mode+(row.t.via?" "+row.t.via:"")+
-                                              " · "+Math.max(1,Math.round(row.t.walk/CFG.walk))+" min walk")
-                     : "est. on foot · "+fmtM(row.d)+" direct")+
-              '</small></span></div>'+
-            '<div class="stat"><span class="stat-k">Nearest MRT</span>'+
-              '<span class="stat-v"><span class="pill '+p.mrt.line+'">'+p.mrt.code+'</span>'+
-              '<small>'+esc(p.mrt.name)+' · '+p.mrtW+' min</small></span></div>'+
-          '</div>'+
-          '<p class="card-note">'+noteHTML(p)+'</p>'+
-          '<p class="card-addr">'+esc(p.addr)+'</p>'+
-          '<div class="card-foot"><a class="go block" href="'+gmaps(p)+'" target="_blank" rel="noopener noreferrer" '+
-            'aria-label="Walking directions from your location to '+esc(p.name)+' in Google Maps">Directions from me &#8599;</a></div>'+
-        '</div>');
+        '<p class="pop-kicker">'+ico(catOf(p),18)+esc(catOf(p))+(p.by?' · '+esc(p.by):'')+
+          (isTop(p)?'<span class="top-tag">Top rated</span>':'')+'</p>'+
+        '<h3 class="pop-name">'+esc(p.name)+'</h3>'+
+        '<p class="pop-facts"><span class="star-i">&#9733;</span> <b>'+p.rating.toFixed(1)+'</b> · <b>'+esc(p.price)+'</b> · '+
+          '<b>'+tripMin(row)+' min</b> '+tripWords(row)+' from '+esc(H.name)+'</p>'+
+        '<p class="pop-facts"><span class="pill '+p.mrt.line+'">'+p.mrt.code+'</span> '+esc(p.mrt.name)+', '+p.mrtW+' min walk</p>'+
+        (state.me && p.dist!=null ? '<p class="pop-me">'+fmtDist(p.dist)+' from you</p>' : '')+
+        '<p class="pop-note">'+noteHTML(p)+'</p>'+
+        '<p class="pop-addr">'+esc(p.addr)+'</p>'+
+        '<div class="pop-actions"><a class="btn btn-main" href="'+gmaps(p)+'" target="_blank" rel="noopener noreferrer" '+
+          'aria-label="Walking directions from your location to '+esc(p.name)+' in Google Maps">Directions from me</a></div>');
     });
 
     HOMES.forEach(function(h,k){
@@ -836,24 +741,23 @@ h1{margin:0; font-family:var(--display); font-weight:800; font-size:23px; line-h
       homeMarkers[k].setTooltipContent(esc(h.name));
       var el=homeMarkers[k].getElement(); if(el){ var sp=el.querySelector(".hm"); if(sp) sp.classList.toggle("off",!act); }
       var ht=homeMarkers[k].getTooltip(), he=ht&&ht.getElement&&ht.getElement();
-      if(he) he.classList.toggle("on",act);
+      if(he) he.style.display=act?"":"none";
     });
 
     var T=R.slice().sort(SORTS[state.sortKey]);
     document.getElementById("list").innerHTML=T.map(function(row){
       var p=row.p, on=state.sel===p.id;
       return '<li><button type="button" class="item" data-place="'+p.id+'"'+(on?' aria-current="true"':'')+'>'+
-        ico(catOf(p),28)+
+        ico(catOf(p),26)+
         '<span class="item-body">'+
           '<span class="item-name">'+esc(p.name)+'</span>'+
-          '<span class="item-meta"><span class="c-rate">'+p.rating.toFixed(1)+'</span>'+stars(p.rating)+priceBar(p.price)+
-            '<span class="pill '+p.mrt.line+'">'+p.mrt.code+'</span>'+esc(p.mrt.name)+' '+p.mrtW+'&prime;</span>'+
-          (p.plus?'<span class="item-note"><b class="g">+</b> '+esc(p.plus)+'</span>':'')+
+          (p.plus?'<span class="item-note">'+esc(p.plus)+'</span>':'')+
           '<span class="item-tag">'+(isTop(p)?'<span class="top-tag">Top</span>':'')+esc(catOf(p))+
-            (p.by?' · '+esc(p.by):'')+
+            ' · <span class="r">&#9733; '+p.rating.toFixed(1)+'</span> · <span class="r">'+esc(p.price)+'</span>'+
+            ' · '+esc(p.mrt.code)+
             (state.me && p.dist!=null?'<span class="dist"> · '+fmtDist(p.dist)+' from you</span>':'')+'</span>'+
         '</span>'+
-        '<span class="item-time"><span class="c-dist">'+tripMin(row)+' min</span>'+tripLine(row)+'</span>'+
+        '<span class="item-time"><b>'+tripMin(row)+' min</b><small>'+tripShort(row)+'</small></span>'+
       '</button></li>';
     }).join("");
 

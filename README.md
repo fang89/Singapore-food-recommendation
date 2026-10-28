@@ -296,6 +296,11 @@ rebuilt.
 
 ### Layout and moving around the map
 
+The map keeps almost nothing permanent on top of the basemap: category pins,
+small house badges for the three doors (only the one being measured from keeps
+its name up), and MRT codes in their line colour. Place names appear on hover
+and in the card. The basemap itself is desaturated, so the pins carry the colour.
+
 The layout follows [Taiwan Food Map](https://timothypix77.github.io/taiwan-food-map/):
 the map fills the window and the list sits beside it, so nothing else on the page
 scrolls and the map takes every gesture as its own — wheel or pinch to zoom, drag
